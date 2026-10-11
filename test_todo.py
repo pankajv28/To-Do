@@ -3,10 +3,10 @@ import todo
 
 def make_tasks():
     return [
-        {'description': 'Get library subscription', 'status':'COMPLETED'},
-        {'description': 'Complete Coding', 'status':'ONGOING'},
-        {'description': 'Lunch', 'status':'TOSTART'},
-        {'description': 'Boiled Eggs', 'status':'TOSTART'},
+        {'title': '1', 'description': 'Get library subscription', 'status':'COMPLETED'},
+        {'title': '2', 'description': 'Complete Coding', 'status':'ONGOING'},
+        {'title': '3', 'description': 'Lunch', 'status':'TOSTART'},
+        {'title': '4', 'description': 'Boiled Eggs', 'status':'TOSTART'},
     ]
 
 def test_instatus_correct():
@@ -26,25 +26,25 @@ def test_findtask_number_too_big():
 
 def test_addtask():
     tasks = make_tasks()
-    todo.add_task(tasks,'Check Funds','TOSTART')
+    todo.add_task(tasks,'5','Check Funds','TOSTART')
     assert len(tasks) == 5
     assert tasks[-1]['description'] == 'Check Funds'
     assert tasks[-1]['status'] == 'TOSTART'
 
 def test_changetask_moves_task():
     tasks = make_tasks()
-    todo.change_status(tasks,'TOSTART',2,'ONGOING')
+    todo.edit_status(tasks,'TOSTART',2,'ONGOING')
     assert tasks[3]['status'] == 'ONGOING'
 
 def test_changetask_leaves_other_tasks():
     tasks = make_tasks()
-    todo.change_status(tasks,'TOSTART',2,'ONGOING')
+    todo.edit_status(tasks,'TOSTART',2,'ONGOING')
     assert tasks[2]['status'] == 'TOSTART'
 
 def test_changetask_bad_number():
     tasks = make_tasks()
     with pytest.raises(ValueError):
-        todo.change_status(tasks, 'ONGOING', 5, 'COMPLETED')
+        todo.edit_status(tasks, 'ONGOING', 5, 'COMPLETED')
 
 def test_deletetask():
     tasks = make_tasks()

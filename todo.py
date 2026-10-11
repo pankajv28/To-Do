@@ -36,10 +36,10 @@ def find_task(tasks, status, number):
     else:
         raise ValueError('Task number is not valid')
     
-def add_task(tasks,description,status):
+def add_task(tasks,title,description,status):
     description = description.strip()
     if description :
-        tasks.append({'description':description, 'createdate': date.today().isoformat(), 'status':status})
+        tasks.append({'title':title,'description':description, 'createdate': date.today().isoformat(), 'status':status})
     else : 
         raise ValueError('Description cannot be empty')
 
@@ -49,11 +49,31 @@ def list_tasks(tasks):
         if group:
             print()
             for i, task in enumerate(group, 1):
-                label = f"{i}. {task['description']}"
+                label = f"{i}. {task['title']} {task['description']}"
                 print(f"{label:<25}{status.title()}")
             print()
 
-def change_status(tasks, current_status,index,new_status):
+def edit(tasks,current_status,number):
+    match (input('What to edit? Title Or Description Or Status').strip().lower()):
+        case 'title':
+            edit_title(tasks,current_status,number)
+        case 'description':
+            edit_description(tasks,current_status,number)
+        case 'status':
+            new_status = ask_status('New Status')
+            edit_status(tasks,current_status,number,new_status)
+        case _:
+            raise Exception('Invalid Edit Request')
+
+def edit_title(tasks,current_status,number):
+    title = input('New Title')
+    find_task(tasks,current_status,number)['title'] = title
+
+def edit_description(tasks,current_status,number):
+    description = input('New Description')
+    find_task(tasks,current_status,number)['description'] = description
+
+def edit_status(tasks, current_status,index,new_status):
         if current_status != new_status:
             find_task(tasks,current_status,index)['status'] = new_status
         else :
@@ -78,7 +98,7 @@ def ask_number(prompt):
 def main():
     tasks = load_tasks()
     while True:
-        command = input(' What to do add/change/delete/list/quit > ')
+        command = input(' What to do add/edit/delete/list/quit > ')
         try:
             match(command.lower().strip()):
                 case "add":
@@ -89,8 +109,8 @@ def main():
                 case "delete":
                     delete_task(tasks,ask_status('Delete from Status : '),ask_number('Task Number :'))
                     save_tasks(tasks)
-                case "change":
-                    change_status(tasks,ask_status('Change from Status : '),ask_number('Task Number : '),ask_status('To Status : '))
+                case "edit":
+                    edit(tasks,ask_status('Current Status : '),ask_number('Task Number : '))
                     save_tasks(tasks)
                 case "quit":
                     print('Goodbye!')

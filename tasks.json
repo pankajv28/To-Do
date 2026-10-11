@@ -1,15 +1,5 @@
 [
     {
-        "description": "Upload to Flask",
-        "createdate": "2026-10-09",
-        "status": "TOSTART"
-    },
-    {
-        "description": "create to-do list",
-        "createdate": "2026-10-09",
-        "status": "ONGOING"
-    },
-    {
         "description": "learn python",
         "createdate": "2026-10-09",
         "status": "ONGOING"
@@ -20,8 +10,9 @@
         "status": "COMPLETED"
     },
     {
-        "description": "Testing the Code",
+        "title": "Start using the ToDo list",
+        "description": "Create a ToDo list for tomorrow i.e. 12th October",
         "createdate": "2026-10-11",
-        "status": "COMPLETED"
+        "status": "TOSTART"
     }
 ]

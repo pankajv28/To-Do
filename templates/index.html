@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My To-Do Board</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="page">
+        <header class="page-header">
+            <div>
+                <p class="eyebrow">PERSONAL WORKSPACE</p>
+                <h1>My To-Do Board</h1>
+                <p class="subtitle">A clear view of what you need to do.</p>
+            </div>
+            <div class="header-actions">
+                <div class="task-count">
+                    <span class="count-dot" aria-hidden="true"></span>
+                    <span>{{ tasks|length }} task{% if tasks|length != 1 %}s{% endif %}</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="board" aria-label="Tasks grouped by status">
+            <!-- Planned -->
+            <section class="column planned">
+                <header class="column-header">
+                    <div class="column-title">
+                        <span class="status-icon planned-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></span>
+                        <h2>Planned</h2>
+                        <span class="column-count">{{ tasks|selectattr('status', 'equalto', 'TOSTART')|list|length }}</span>
+                    </div>
+                    <button class="add-button" type="button" data-status="TOSTART" aria-label="Add a planned task" title="Add a planned task"><svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+                </header>
+
+                {% set planned_tasks = tasks|selectattr('status', 'equalto', 'TOSTART')|list %}
+                {% for task in planned_tasks %}
+                    <article class="task-card">
+                        <div class="card-main">
+                            <h3>{{ task.title if task.title is defined and task.title else task.description }}</h3>
+                            {% if task.title is defined and task.description %}
+                                <p class="description">{{ task.description }}</p>
+                            {% endif %}
+                            <div class="card-meta">
+                                <span class="date">
+                                    <svg class="calendar-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M7.5 2.8v4M16.5 2.8v4M3.5 9h17"/><circle cx="8" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="12" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="16" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="8" cy="16.5" r=".8" fill="currentColor" stroke="none"/><circle cx="12" cy="16.5" r=".8" fill="currentColor" stroke="none"/></svg>
+                                    <time class="task-date" datetime="{{ task.createdate }}">{{ task.createdate }}</time>
+                                </span>
+                                <div class="card-actions" aria-label="Task actions">
+                                    <button class="icon-action edit-action" type="button"
+                                            data-current-status="{{ task.status }}"
+                                            data-number="{{ loop.index }}"
+                                            data-title="{{ (task.title if task.title is defined and task.title else task.description)|e }}"
+                                            data-description="{{ (task.description if task.title is defined else '')|e }}"
+                                            aria-label="Edit task: {{ task.title if task.title is defined and task.title else task.description }}"
+                                            title="Edit task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h8"/><path d="m15.8 4.2 4 4L8 20l-4 1 1-4Z"/></svg></button>
+                                    <span class="action-divider" aria-hidden="true"></span>
+                                    <form class="delete-form" action="{{ url_for('delete_task_route') }}" method="POST" data-delete-confirmation>
+                                        <input type="hidden" name="current_status" value="{{ task.status }}">
+                                        <input type="hidden" name="number" value="{{ loop.index }}">
+                                        <button class="icon-action delete-action" type="submit" aria-label="Delete task: {{ task.title if task.title is defined and task.title else task.description }}" title="Delete task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5h15M9 6.5V4.5h6v2M7 6.5l.8 13h8.4l.8-13M10 10v6M14 10v6"/></svg></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                {% else %}
+                    <p class="empty-column">No planned tasks.</p>
+                {% endfor %}
+            </section>
+
+            <!-- In Progress -->
+            <section class="column in-progress">
+                <header class="column-header">
+                    <div class="column-title">
+                        <span class="status-icon progress-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="2 3"/></svg></span>
+                        <h2>In Progress</h2>
+                        <span class="column-count">{{ tasks|selectattr('status', 'equalto', 'ONGOING')|list|length }}</span>
+                    </div>
+                    <button class="add-button" type="button" data-status="ONGOING" aria-label="Add a task in progress" title="Add a task in progress"><svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+                </header>
+
+                {% set ongoing_tasks = tasks|selectattr('status', 'equalto', 'ONGOING')|list %}
+                {% for task in ongoing_tasks %}
+                    <article class="task-card">
+                        <div class="card-main">
+                            <h3>{{ task.title if task.title is defined and task.title else task.description }}</h3>
+                            {% if task.title is defined and task.description %}<p class="description">{{ task.description }}</p>{% endif %}
+                            <div class="card-meta">
+                                <span class="date">
+                                    <svg class="calendar-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M7.5 2.8v4M16.5 2.8v4M3.5 9h17"/><circle cx="8" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="12" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="16" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="8" cy="16.5" r=".8" fill="currentColor" stroke="none"/><circle cx="12" cy="16.5" r=".8" fill="currentColor" stroke="none"/></svg>
+                                    <time class="task-date" datetime="{{ task.createdate }}">{{ task.createdate }}</time>
+                                </span>
+                                <div class="card-actions" aria-label="Task actions">
+                                    <button class="icon-action edit-action" type="button"
+                                            data-current-status="{{ task.status }}"
+                                            data-number="{{ loop.index }}"
+                                            data-title="{{ (task.title if task.title is defined and task.title else task.description)|e }}"
+                                            data-description="{{ (task.description if task.title is defined else '')|e }}"
+                                            aria-label="Edit task: {{ task.title if task.title is defined and task.title else task.description }}"
+                                            title="Edit task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h8"/><path d="m15.8 4.2 4 4L8 20l-4 1 1-4Z"/></svg></button>
+                                    <span class="action-divider" aria-hidden="true"></span>
+                                    <form class="delete-form" action="{{ url_for('delete_task_route') }}" method="POST" data-delete-confirmation>
+                                        <input type="hidden" name="current_status" value="{{ task.status }}">
+                                        <input type="hidden" name="number" value="{{ loop.index }}">
+                                        <button class="icon-action delete-action" type="submit" aria-label="Delete task: {{ task.title if task.title is defined and task.title else task.description }}" title="Delete task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5h15M9 6.5V4.5h6v2M7 6.5l.8 13h8.4l.8-13M10 10v6M14 10v6"/></svg></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                {% else %}
+                    <p class="empty-column">No tasks in progress.</p>
+                {% endfor %}
+            </section>
+
+            <!-- Done -->
+            <section class="column done">
+                <header class="column-header">
+                    <div class="column-title">
+                        <span class="status-icon done-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg></span>
+                        <h2>Done</h2>
+                        <span class="column-count">{{ tasks|selectattr('status', 'equalto', 'COMPLETED')|list|length }}</span>
+                    </div>
+                    <button class="add-button" type="button" data-status="COMPLETED" aria-label="Add a completed task" title="Add a completed task"><svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+                </header>
+
+                {% set completed_tasks = tasks|selectattr('status', 'equalto', 'COMPLETED')|list %}
+                {% for task in completed_tasks %}
+                    <article class="task-card">
+                        <div class="card-main">
+                            <h3>{{ task.title if task.title is defined and task.title else task.description }}</h3>
+                            {% if task.title is defined and task.description %}<p class="description">{{ task.description }}</p>{% endif %}
+                            <div class="card-meta">
+                                <span class="date">
+                                    <svg class="calendar-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M7.5 2.8v4M16.5 2.8v4M3.5 9h17"/><circle cx="8" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="12" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="16" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="8" cy="16.5" r=".8" fill="currentColor" stroke="none"/><circle cx="12" cy="16.5" r=".8" fill="currentColor" stroke="none"/></svg>
+                                    <time class="task-date" datetime="{{ task.createdate }}">{{ task.createdate }}</time>
+                                </span>
+                                <div class="card-actions" aria-label="Task actions">
+                                    <button class="icon-action edit-action" type="button"
+                                            data-current-status="{{ task.status }}"
+                                            data-number="{{ loop.index }}"
+                                            data-title="{{ (task.title if task.title is defined and task.title else task.description)|e }}"
+                                            data-description="{{ (task.description if task.title is defined else '')|e }}"
+                                            aria-label="Edit task: {{ task.title if task.title is defined and task.title else task.description }}"
+                                            title="Edit task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h8"/><path d="m15.8 4.2 4 4L8 20l-4 1 1-4Z"/></svg></button>
+                                    <span class="action-divider" aria-hidden="true"></span>
+                                    <form class="delete-form" action="{{ url_for('delete_task_route') }}" method="POST" data-delete-confirmation>
+                                        <input type="hidden" name="current_status" value="{{ task.status }}">
+                                        <input type="hidden" name="number" value="{{ loop.index }}">
+                                        <button class="icon-action delete-action" type="submit" aria-label="Delete task: {{ task.title if task.title is defined and task.title else task.description }}" title="Delete task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5h15M9 6.5V4.5h6v2M7 6.5l.8 13h8.4l.8-13M10 10v6M14 10v6"/></svg></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                {% else %}
+                    <p class="empty-column">No completed tasks.</p>
+                {% endfor %}
+            </section>
+        </section>
+    </main>
+
+    <!-- The form is centred in the browser viewport. -->
+    <div class="modal-backdrop" id="task-modal" hidden>
+        <section class="task-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <header class="modal-header">
+                <div>
+                    <p class="eyebrow" id="modal-status-label">PLANNED</p>
+                    <h2 id="modal-title">Add a task</h2>
+                </div>
+                <button class="close-button" type="button" id="close-task-form" aria-label="Close form"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+            </header>
+
+            <form id="task-form" action="{{ url_for('add_task_route') }}" method="POST">
+                <label for="title">Title <span class="required-mark">*</span></label>
+                <input type="text" id="title" name="title" placeholder="e.g. Upload to Flask" required maxlength="120">
+
+                <label for="description">Description <span class="optional-label">(optional)</span></label>
+                <textarea id="description" name="description" rows="3" placeholder="Add more details about this task..." maxlength="1000"></textarea>
+
+                <input type="hidden" id="add-status" name="status" value="TOSTART">
+                <input type="hidden" id="current-status" name="current_status" value="">
+                <input type="hidden" id="task-number" name="number" value="">
+
+                <div id="edit-status-group" hidden>
+                    <label for="edit-status">Status</label>
+                    <select id="edit-status" name="status" disabled>
+                        <option value="TOSTART">Planned</option>
+                        <option value="ONGOING">In Progress</option>
+                        <option value="COMPLETED">Done</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button class="secondary-button" type="button" id="cancel-task-form">Cancel</button>
+                    <button class="primary-button" type="submit" id="submit-task-form">Add Task</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+
+    <!-- Custom delete confirmation, styled to match the board. -->
+    <div class="modal-backdrop confirmation-backdrop" id="delete-modal" hidden>
+        <section class="task-modal confirmation-modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title" aria-describedby="delete-modal-message">
+            <header class="modal-header confirmation-header">
+                <div>
+                    <h2 id="delete-modal-title">Are you sure?</h2>
+                </div>
+                <button class="close-button" type="button" id="close-delete-modal" aria-label="Close confirmation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+            </header>
+            <div class="confirmation-message">
+                <span class="confirmation-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4.5 6.5h15M9 6.5V4.5h6v2M7 6.5l.8 13h8.4l.8-13M10 10v6M14 10v6"/></svg></span>
+                <p id="delete-modal-message">This task will be permanently deleted. This action cannot be undone.</p>
+            </div>
+            <div class="form-actions confirmation-actions">
+                <button class="secondary-button" type="button" id="cancel-delete">Cancel</button>
+                <button class="delete-confirm-button" type="button" id="confirm-delete">Delete Task</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const taskModal = document.getElementById('task-modal');
+        const taskForm = document.getElementById('task-form');
+        const titleInput = document.getElementById('title');
+        const descriptionInput = document.getElementById('description');
+        const addStatusInput = document.getElementById('add-status');
+        const currentStatusInput = document.getElementById('current-status');
+        const taskNumberInput = document.getElementById('task-number');
+        const editStatus = document.getElementById('edit-status');
+        const editStatusGroup = document.getElementById('edit-status-group');
+        const modalStatusLabel = document.getElementById('modal-status-label');
+        const modalTitle = document.getElementById('modal-title');
+        const submitButton = document.getElementById('submit-task-form');
+        const statusLabels = { TOSTART: 'PLANNED', ONGOING: 'IN PROGRESS', COMPLETED: 'DONE' };
+        let lastFocusedElement = null;
+        const deleteModal = document.getElementById('delete-modal');
+        let pendingDeleteForm = null;
+        let lastDeleteFocus = null;
+
+        // Display dates as compact labels, e.g. 9 Oct.
+        document.querySelectorAll('.task-date[datetime]').forEach(function (dateElement) {
+            const parsedDate = new Date(dateElement.getAttribute('datetime') + 'T00:00:00');
+            if (!Number.isNaN(parsedDate.getTime())) {
+                dateElement.textContent = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(parsedDate);
+            }
+        });
+
+        function openAddForm(status) {
+            lastFocusedElement = document.activeElement;
+            taskForm.action = "{{ url_for('add_task_route') }}";
+            modalStatusLabel.textContent = statusLabels[status] || 'PLANNED';
+            modalTitle.textContent = 'Add a task';
+            submitButton.textContent = 'Add Task';
+            titleInput.value = '';
+            descriptionInput.value = '';
+            addStatusInput.value = status;
+            addStatusInput.disabled = false;
+            currentStatusInput.disabled = true;
+            taskNumberInput.disabled = true;
+            editStatus.disabled = true;
+            editStatusGroup.hidden = true;
+            taskModal.hidden = false;
+            titleInput.focus();
+        }
+
+        function openEditForm(button) {
+            lastFocusedElement = document.activeElement;
+            const status = button.dataset.currentStatus;
+            taskForm.action = "{{ url_for('edit_task_route') }}";
+            modalStatusLabel.textContent = statusLabels[status] || 'EDIT TASK';
+            modalTitle.textContent = 'Edit task';
+            submitButton.textContent = 'Save Changes';
+            titleInput.value = button.dataset.title || '';
+            descriptionInput.value = button.dataset.description || '';
+            currentStatusInput.value = status;
+            taskNumberInput.value = button.dataset.number;
+            currentStatusInput.disabled = false;
+            taskNumberInput.disabled = false;
+            addStatusInput.disabled = true;
+            editStatus.value = status;
+            editStatus.disabled = false;
+            editStatusGroup.hidden = false;
+            taskModal.hidden = false;
+            titleInput.focus();
+        }
+
+        function closeTaskForm() {
+            taskModal.hidden = true;
+            if (lastFocusedElement) lastFocusedElement.focus();
+        }
+
+        function closeDeleteModal() {
+            deleteModal.hidden = true;
+            pendingDeleteForm = null;
+            if (lastDeleteFocus) lastDeleteFocus.focus();
+        }
+
+        document.querySelectorAll('[data-delete-confirmation]').forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                pendingDeleteForm = form;
+                lastDeleteFocus = form.querySelector('button[type="submit"]');
+                deleteModal.hidden = false;
+                document.getElementById('cancel-delete').focus();
+            });
+        });
+        document.getElementById('cancel-delete').addEventListener('click', closeDeleteModal);
+        document.getElementById('close-delete-modal').addEventListener('click', closeDeleteModal);
+        deleteModal.addEventListener('click', function (event) {
+            if (event.target === deleteModal) closeDeleteModal();
+        });
+        document.getElementById('confirm-delete').addEventListener('click', function () {
+            if (pendingDeleteForm) pendingDeleteForm.submit();
+        });
+
+        document.querySelectorAll('.add-button[data-status]').forEach(function (button) {
+            button.addEventListener('click', function () { openAddForm(button.dataset.status); });
+        });
+        document.querySelectorAll('.edit-action[data-current-status]').forEach(function (button) {
+            button.addEventListener('click', function () { openEditForm(button); });
+        });
+        document.getElementById('close-task-form').addEventListener('click', closeTaskForm);
+        document.getElementById('cancel-task-form').addEventListener('click', closeTaskForm);
+        taskModal.addEventListener('click', function (event) {
+            if (event.target === taskModal) closeTaskForm();
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && !deleteModal.hidden) closeDeleteModal();
+            else if (event.key === 'Escape' && !taskModal.hidden) closeTaskForm();
+        });
+    </script>
+</body>
+</html>
