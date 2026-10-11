@@ -2,77 +2,103 @@ from datetime import date
 import json
 import os
 
-tasks = []
-tostart = []
-ongoing = []
-completed = []
+statuses = (
+    'TOSTART',
+    'ONGOING',
+    'COMPLETED'
+)
 
-TODO = True
+filename = 'tasks.json'
 
-status_lists = {
-    'tostart':tostart,
-    'ongoing':ongoing,
-    'completed':completed
-}
+def load_tasks():
+    try:
+        with open(filename,'r') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return []
+    except json.JSONDecodeError:
+        print (f'{filename} was unreadable, starting from empty to-do list')
+        return []
 
-class Task:
-    def __init__(self,description,createdate):
-        self.description = description
-        self.createdate = createdate
+def save_tasks(tasks):
+    temp = filename + '.tmp'
+    with open(temp,'w') as file:
+        json.dump(tasks,file,indent = 4)
+    os.replace(temp,filename)
 
-    def __str__(self):
-        print (f'{self.description}')
-
-def add_task(description,list):
-    list = status_lists[list]
-    list.append(Task(description,date.today()))
-
-def list_tasks():
-    if tostart == [] and ongoing == [] and completed == []:
-        print ('Empty List!')
-    else :
-        print(f'{"TO START":<25}{"ONGOING":<25}{"COMPLETED":<25}')
-        max_length = max(len(tostart), len(ongoing), len(completed))
-        for i in range(max_length):
-            left = f'{i+1}. {tostart[i].description}' if i < len(tostart) else ''
-            middle = f'{i+1}. {ongoing[i].description}' if i < len(ongoing) else ''
-            right = f'{i+1}. {completed[i].description}' if i < len(completed) else ''
-            print(f'{left:<25}{middle:<25}{right:<25}')
-
-def change_status(current_status,index,new_status):
-        task = status_lists[current_status][index-1]
-        status_lists[new_status].append(task)
-        status_lists[current_status].pop(index-1)
-
-def delete_task(current_status,index):
-    status = status_lists[current_status]
-    if index <= len(status) :
-        status.pop(index-1)
-    else :
-        print('List doesnt have these many tasks')
-
-def quit_todo():
-    print ('Goodbye!')
-    return False
-
-def error_status(status):
-    if status in ('tostart','ongoing','completed'):
-        return status
+def in_status(tasks,status):
+    return [t for t in tasks if t['status']==status]
+        
+def find_task(tasks, status, number):
+    matches = in_status(tasks,status)
+    if 1 <= number <= len(matches):
+        return matches[number-1]
     else:
-        raise NameError('Status name is invalid')
+        raise ValueError('Task number is not valid')
+    
+def add_task(tasks,description,status):
+    description = description.strip()
+    if description :
+        tasks.append({'description':description, 'createdate': date.today().isoformat(), 'status':status})
+    else : 
+        raise ValueError('Description cannot be empty')
 
-while TODO == True:
-    command = input(' What to do > ')
-    match(command.lower().strip()):
-        case "add":
-            add_task(input("Add task description : "),input("Status of the task : \n TOSTART\n ONGOING\n COMPLETED\n").strip().lower())
-        case "list":
-            list_tasks()
-        case "delete":
-            delete_task(error_status(input('Which list do you want to delete from?\n TOSTART\n ONGOING\n COMPLETED\n ')),int(input("Which number task do you want to delete? ")))
-        case "change":
-            change_status(error_status(input('Current Status is? \n TOSTART\n ONGOING\n COMPLETED\n ').strip().lower()),int(input('Which task number? ')),error_status(input('Updated Status is? \n TOSTART\n ONGOING\n COMPLETED\n ').strip().lower()))
-        case "quit":
-            TODO = quit_todo()
-        case _:
-            print("Unknown command")
+def list_tasks(tasks):
+    for status in statuses:
+        group = in_status(tasks,status)
+        if group:
+            print()
+            for i, task in enumerate(group, 1):
+                label = f"{i}. {task['description']}"
+                print(f"{label:<25}{status.title()}")
+            print()
+
+def change_status(tasks, current_status,index,new_status):
+        if current_status != new_status:
+            find_task(tasks,current_status,index)['status'] = new_status
+        else :
+            print ('Old and New task status are same')
+            
+def delete_task(tasks,current_status,index):
+    tasks.remove(find_task(tasks,current_status,index))
+
+def ask_status(prompt):
+    input_status = input(f'{prompt} {"/".join(statuses)} ').strip().upper()
+    if input_status not in statuses:
+        raise ValueError('Status is invalid')
+    else:
+        return input_status
+    
+def ask_number(prompt):
+    try: 
+        return int(input(prompt))
+    except:
+        raise ValueError('Input has to be a whole number')
+    
+def main():
+    tasks = load_tasks()
+    while True:
+        command = input(' What to do add/change/delete/list/quit > ')
+        try:
+            match(command.lower().strip()):
+                case "add":
+                    add_task(tasks,input("Description : "),ask_status('Status : '))
+                    save_tasks(tasks)
+                case "list":
+                    list_tasks(tasks)
+                case "delete":
+                    delete_task(tasks,ask_status('Delete from Status : '),ask_number('Task Number :'))
+                    save_tasks(tasks)
+                case "change":
+                    change_status(tasks,ask_status('Change from Status : '),ask_number('Task Number : '),ask_status('To Status : '))
+                    save_tasks(tasks)
+                case "quit":
+                    print('Goodbye!')
+                    break
+                case _:
+                    print("Unknown command")
+        except (ValueError) as e:
+            print(f'Invalid input: {e}')
+
+if __name__ == '__main__':
+    main()
