@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Private SQLite database
+tasks.db
+
+# SQLite temporary and journal files
+tasks.db-*

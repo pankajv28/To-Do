@@ -29,37 +29,37 @@
                     <div class="column-title">
                         <span class="status-icon planned-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></span>
                         <h2>Planned</h2>
-                        <span class="column-count">{{ tasks|selectattr('status', 'equalto', 'TOSTART')|list|length }}</span>
+                        <span class="column-count">{{ tasks|selectattr(3, 'equalto', 'TOSTART')|list|length }}</span>
                     </div>
                     <button class="add-button" type="button" data-status="TOSTART" aria-label="Add a planned task" title="Add a planned task"><svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
                 </header>
 
-                {% set planned_tasks = tasks|selectattr('status', 'equalto', 'TOSTART')|list %}
+                {% set planned_tasks = tasks|selectattr(3, 'equalto', 'TOSTART')|list %}
                 {% for task in planned_tasks %}
                     <article class="task-card">
                         <div class="card-main">
-                            <h3>{{ task.title if task.title is defined and task.title else task.description }}</h3>
-                            {% if task.title is defined and task.description %}
-                                <p class="description">{{ task.description }}</p>
+                            <h3>{{ task[1] if task[1] is defined and task[1] else task[2] }}</h3>
+                            {% if task[1] is defined and task[2] %}
+                                <p class="description">{{ task[2] }}</p>
                             {% endif %}
                             <div class="card-meta">
                                 <span class="date">
                                     <svg class="calendar-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M7.5 2.8v4M16.5 2.8v4M3.5 9h17"/><circle cx="8" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="12" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="16" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="8" cy="16.5" r=".8" fill="currentColor" stroke="none"/><circle cx="12" cy="16.5" r=".8" fill="currentColor" stroke="none"/></svg>
-                                    <time class="task-date" datetime="{{ task.createdate }}">{{ task.createdate }}</time>
+                                    <time class="task-date" datetime="{{ task[4] }}">{{ task[4] }}</time>
                                 </span>
                                 <div class="card-actions" aria-label="Task actions">
                                     <button class="icon-action edit-action" type="button"
-                                            data-current-status="{{ task.status }}"
-                                            data-number="{{ loop.index }}"
-                                            data-title="{{ (task.title if task.title is defined and task.title else task.description)|e }}"
-                                            data-description="{{ (task.description if task.title is defined else '')|e }}"
-                                            aria-label="Edit task: {{ task.title if task.title is defined and task.title else task.description }}"
+                                            data-current-status="{{ task[3] }}"
+                                            data-number="{{ task[0] }}"
+                                            data-title="{{ (task[1] if task[1] is defined and task[1] else task[2])|e }}"
+                                            data-description="{{ (task[2] if task[1] is defined else '')|e }}"
+                                            aria-label="Edit task: {{ task[1] if task[1] is defined and task[1] else task[2] }}"
                                             title="Edit task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h8"/><path d="m15.8 4.2 4 4L8 20l-4 1 1-4Z"/></svg></button>
                                     <span class="action-divider" aria-hidden="true"></span>
                                     <form class="delete-form" action="{{ url_for('delete_task_route') }}" method="POST" data-delete-confirmation>
-                                        <input type="hidden" name="current_status" value="{{ task.status }}">
-                                        <input type="hidden" name="number" value="{{ loop.index }}">
-                                        <button class="icon-action delete-action" type="submit" aria-label="Delete task: {{ task.title if task.title is defined and task.title else task.description }}" title="Delete task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5h15M9 6.5V4.5h6v2M7 6.5l.8 13h8.4l.8-13M10 10v6M14 10v6"/></svg></button>
+                                        <input type="hidden" name="current_status" value="{{ task[3] }}">
+                                        <input type="hidden" name="number" value="{{ task[0] }}">
+                                        <button class="icon-action delete-action" type="submit" aria-label="Delete task: {{ task[1] if task[1] is defined and task[1] else task[2] }}" title="Delete task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5h15M9 6.5V4.5h6v2M7 6.5l.8 13h8.4l.8-13M10 10v6M14 10v6"/></svg></button>
                                     </form>
                                 </div>
                             </div>
@@ -76,35 +76,35 @@
                     <div class="column-title">
                         <span class="status-icon progress-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="2 3"/></svg></span>
                         <h2>In Progress</h2>
-                        <span class="column-count">{{ tasks|selectattr('status', 'equalto', 'ONGOING')|list|length }}</span>
+                        <span class="column-count">{{ tasks|selectattr(3, 'equalto', 'ONGOING')|list|length }}</span>
                     </div>
                     <button class="add-button" type="button" data-status="ONGOING" aria-label="Add a task in progress" title="Add a task in progress"><svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
                 </header>
 
-                {% set ongoing_tasks = tasks|selectattr('status', 'equalto', 'ONGOING')|list %}
+                {% set ongoing_tasks = tasks|selectattr(3, 'equalto', 'ONGOING')|list %}
                 {% for task in ongoing_tasks %}
                     <article class="task-card">
                         <div class="card-main">
-                            <h3>{{ task.title if task.title is defined and task.title else task.description }}</h3>
-                            {% if task.title is defined and task.description %}<p class="description">{{ task.description }}</p>{% endif %}
+                            <h3>{{ task[1] if task[1] is defined and task[1] else task[2] }}</h3>
+                            {% if task[1] is defined and task[2] %}<p class="description">{{ task[2] }}</p>{% endif %}
                             <div class="card-meta">
                                 <span class="date">
                                     <svg class="calendar-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M7.5 2.8v4M16.5 2.8v4M3.5 9h17"/><circle cx="8" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="12" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="16" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="8" cy="16.5" r=".8" fill="currentColor" stroke="none"/><circle cx="12" cy="16.5" r=".8" fill="currentColor" stroke="none"/></svg>
-                                    <time class="task-date" datetime="{{ task.createdate }}">{{ task.createdate }}</time>
+                                    <time class="task-date" datetime="{{ task[4] }}">{{ task[4] }}</time>
                                 </span>
                                 <div class="card-actions" aria-label="Task actions">
                                     <button class="icon-action edit-action" type="button"
-                                            data-current-status="{{ task.status }}"
-                                            data-number="{{ loop.index }}"
-                                            data-title="{{ (task.title if task.title is defined and task.title else task.description)|e }}"
-                                            data-description="{{ (task.description if task.title is defined else '')|e }}"
-                                            aria-label="Edit task: {{ task.title if task.title is defined and task.title else task.description }}"
+                                            data-current-status="{{ task[3] }}"
+                                            data-number="{{ task[0] }}"
+                                            data-title="{{ (task[1] if task[1] is defined and task[1] else task[2])|e }}"
+                                            data-description="{{ (task[2] if task[1] is defined else '')|e }}"
+                                            aria-label="Edit task: {{ task[1] if task[1] is defined and task[1] else task[2] }}"
                                             title="Edit task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h8"/><path d="m15.8 4.2 4 4L8 20l-4 1 1-4Z"/></svg></button>
                                     <span class="action-divider" aria-hidden="true"></span>
                                     <form class="delete-form" action="{{ url_for('delete_task_route') }}" method="POST" data-delete-confirmation>
-                                        <input type="hidden" name="current_status" value="{{ task.status }}">
-                                        <input type="hidden" name="number" value="{{ loop.index }}">
-                                        <button class="icon-action delete-action" type="submit" aria-label="Delete task: {{ task.title if task.title is defined and task.title else task.description }}" title="Delete task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5h15M9 6.5V4.5h6v2M7 6.5l.8 13h8.4l.8-13M10 10v6M14 10v6"/></svg></button>
+                                        <input type="hidden" name="current_status" value="{{ task[3] }}">
+                                        <input type="hidden" name="number" value="{{ task[0] }}">
+                                        <button class="icon-action delete-action" type="submit" aria-label="Delete task: {{ task[1] if task[1] is defined and task[1] else task[2] }}" title="Delete task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5h15M9 6.5V4.5h6v2M7 6.5l.8 13h8.4l.8-13M10 10v6M14 10v6"/></svg></button>
                                     </form>
                                 </div>
                             </div>
@@ -121,35 +121,35 @@
                     <div class="column-title">
                         <span class="status-icon done-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg></span>
                         <h2>Done</h2>
-                        <span class="column-count">{{ tasks|selectattr('status', 'equalto', 'COMPLETED')|list|length }}</span>
+                        <span class="column-count">{{ tasks|selectattr(3, 'equalto', 'COMPLETED')|list|length }}</span>
                     </div>
                     <button class="add-button" type="button" data-status="COMPLETED" aria-label="Add a completed task" title="Add a completed task"><svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
                 </header>
 
-                {% set completed_tasks = tasks|selectattr('status', 'equalto', 'COMPLETED')|list %}
+                {% set completed_tasks = tasks|selectattr(3, 'equalto', 'COMPLETED')|list %}
                 {% for task in completed_tasks %}
                     <article class="task-card">
                         <div class="card-main">
-                            <h3>{{ task.title if task.title is defined and task.title else task.description }}</h3>
-                            {% if task.title is defined and task.description %}<p class="description">{{ task.description }}</p>{% endif %}
+                            <h3>{{ task[1] if task[1] is defined and task[1] else task[2] }}</h3>
+                            {% if task[1] is defined and task[2] %}<p class="description">{{ task[2] }}</p>{% endif %}
                             <div class="card-meta">
                                 <span class="date">
                                     <svg class="calendar-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M7.5 2.8v4M16.5 2.8v4M3.5 9h17"/><circle cx="8" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="12" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="16" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="8" cy="16.5" r=".8" fill="currentColor" stroke="none"/><circle cx="12" cy="16.5" r=".8" fill="currentColor" stroke="none"/></svg>
-                                    <time class="task-date" datetime="{{ task.createdate }}">{{ task.createdate }}</time>
+                                    <time class="task-date" datetime="{{ task[4] }}">{{ task[4] }}</time>
                                 </span>
                                 <div class="card-actions" aria-label="Task actions">
                                     <button class="icon-action edit-action" type="button"
-                                            data-current-status="{{ task.status }}"
-                                            data-number="{{ loop.index }}"
-                                            data-title="{{ (task.title if task.title is defined and task.title else task.description)|e }}"
-                                            data-description="{{ (task.description if task.title is defined else '')|e }}"
-                                            aria-label="Edit task: {{ task.title if task.title is defined and task.title else task.description }}"
+                                            data-current-status="{{ task[3] }}"
+                                            data-number="{{ task[0] }}"
+                                            data-title="{{ (task[1] if task[1] is defined and task[1] else task[2])|e }}"
+                                            data-description="{{ (task[2] if task[1] is defined else '')|e }}"
+                                            aria-label="Edit task: {{ task[1] if task[1] is defined and task[1] else task[2] }}"
                                             title="Edit task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h8"/><path d="m15.8 4.2 4 4L8 20l-4 1 1-4Z"/></svg></button>
                                     <span class="action-divider" aria-hidden="true"></span>
                                     <form class="delete-form" action="{{ url_for('delete_task_route') }}" method="POST" data-delete-confirmation>
-                                        <input type="hidden" name="current_status" value="{{ task.status }}">
-                                        <input type="hidden" name="number" value="{{ loop.index }}">
-                                        <button class="icon-action delete-action" type="submit" aria-label="Delete task: {{ task.title if task.title is defined and task.title else task.description }}" title="Delete task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5h15M9 6.5V4.5h6v2M7 6.5l.8 13h8.4l.8-13M10 10v6M14 10v6"/></svg></button>
+                                        <input type="hidden" name="current_status" value="{{ task[3] }}">
+                                        <input type="hidden" name="number" value="{{ task[0] }}">
+                                        <button class="icon-action delete-action" type="submit" aria-label="Delete task: {{ task[1] if task[1] is defined and task[1] else task[2] }}" title="Delete task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5h15M9 6.5V4.5h6v2M7 6.5l.8 13h8.4l.8-13M10 10v6M14 10v6"/></svg></button>
                                     </form>
                                 </div>
                             </div>
