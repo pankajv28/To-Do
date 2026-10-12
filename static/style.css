@@ -201,3 +201,88 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); letter-spacing: -.04em; line-
     .confirmation-modal .confirmation-actions { flex-wrap: wrap; }
     .confirmation-modal .confirmation-actions button { flex: 1 1 auto; }
 }
+
+
+/* ---------- Authentication additions (keep existing Kanban theme) ---------- */
+.header-actions {
+    flex-wrap: wrap;
+}
+.welcome-user {
+    color: #5f6874;
+    font-size: 13px;
+    white-space: nowrap;
+}
+.welcome-user strong {
+    color: var(--text);
+    font-weight: 650;
+}
+.logout-form {
+    display: inline-flex;
+    margin: 0;
+}
+
+/* Login page uses the same palette, typography, borders and buttons. */
+.login-page {
+    display: grid;
+    min-height: 100vh;
+    place-items: center;
+    padding: 24px;
+}
+.login-card {
+    width: min(100%, 430px);
+    padding: 34px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--card-bg);
+    box-shadow: 0 12px 40px rgba(16, 24, 40, .08);
+}
+.login-card h1 {
+    font-size: clamp(28px, 3vw, 34px);
+}
+.login-card .subtitle {
+    margin-bottom: 24px;
+}
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.login-form label {
+    margin-top: 5px;
+    color: #424a55;
+    font-size: 14px;
+    font-weight: 650;
+}
+.login-form input {
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 13px;
+    border: 1px solid #d9dee5;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--text);
+    font: inherit;
+}
+.login-form input:focus {
+    outline: none;
+    border-color: #7b91bd;
+    box-shadow: 0 0 0 3px rgba(91, 131, 215, .13);
+}
+.login-form .primary-button {
+    width: 100%;
+    margin-top: 10px;
+}
+.login-card .flash-message {
+    margin: 0 0 20px;
+}
+@media (max-width: 650px) {
+    .login-card {
+        padding: 26px 22px;
+    }
+    .header-actions {
+        gap: 10px;
+    }
+    .welcome-user {
+        white-space: normal;
+    }
+}

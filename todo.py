@@ -19,25 +19,38 @@ def init_db():
                 description TEXT,
                 status VARCHAR(10)
                     CHECK (status IN ('TOSTART', 'ONGOING', 'COMPLETED')),
-                createdate TEXT
+                createdate TEXT,
+                user_id INTEGER
             )
         """)
         connection.commit()
+
+        cursor = connection.cursor()
+        cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS users (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            username TEXT NOT NULL UNIQUE,
+                            password_hash TEXT NOT NULL
+                        );
+                    """)
+        
+        connection.commit()
+        
     finally:
         connection.close()
 
-def load_tasks():
+def load_tasks(userid):
     connection = sqlite3.connect('tasks.db')
     try:
         cursor = connection.cursor()
-        cursor.execute('SELECT * FROM tasks')
+        cursor.execute('SELECT * FROM tasks where user_id = ?', (userid,))
         tasks = (cursor.fetchall())
         print (tasks)
         return tasks
     finally:
         connection.close()
     
-def add_task(title,description,status):
+def add_task(userid,title,description,status):
     title = title.strip()
     description = description.strip()
 
@@ -45,15 +58,15 @@ def add_task(title,description,status):
     if title :
         try:
             cursor = connection.cursor()
-            cursor.execute('INSERT into tasks (title, description, status, createdate) VALUES (?,?,?,?)',
-                           (title, description, status, date.today().isoformat()))
+            cursor.execute('INSERT into tasks (title, description, status, createdate, user_id) VALUES (?,?,?,?,?)',
+                           (title, description, status, date.today().isoformat(),userid))
             connection.commit()
         finally:
             connection.close()
     else : 
         raise ValueError('Description cannot be empty')
 
-def edit_task(number, new_title, new_description, new_status):
+def edit_task(userid,number, new_title, new_description, new_status):
     new_title = new_title.strip()
     new_description = new_description.strip()
     
@@ -65,19 +78,19 @@ def edit_task(number, new_title, new_description, new_status):
                        SET title = (?),
                        description = (?),
                        status = (?)
-                       where id = (?)"""
-                       , (new_title, new_description, new_status, number))
+                       where id = (?) AND user_id = ?"""
+                       , (new_title, new_description, new_status, number, userid))
         connection.commit()
     finally:
         connection.close()
             
-def delete_task(number):
+def delete_task(userid, number):
     connection = sqlite3.connect('tasks.db')
 
     try:
         cursor = connection.cursor()
         cursor.execute("""DELETE from tasks
-                       where id = ?""",(number,))
+                       where id = ? AND user_id = ? """,(number, userid))
         connection.commit()
     finally:
         connection.close()
@@ -94,6 +107,12 @@ def ask_number(prompt):
         return int(input(prompt))
     except:
         raise ValueError('Input has to be a whole number')
+
+def ask_user():
+    try:
+        return( int(input('USER ID : ')))
+    except:
+        raise ValueError('USER ID has to be a whole number')
     
 def main():
 
@@ -104,13 +123,13 @@ def main():
         try:
             match(command.lower().strip()):
                 case "add":
-                    add_task(input("Title : "),input("Description : "),ask_status('Status : '))
+                    add_task(ask_user(), input("Title : "),input("Description : "),ask_status('Status : '))
                 case "list":
-                    load_tasks()
+                    load_tasks(ask_user())
                 case "delete":
-                    delete_task(ask_number('Task Number :'))
+                    delete_task(ask_user(), ask_number('Task Number :'))
                 case "edit":
-                    edit_task(ask_number('Task Number : '),input("New Title : "),input("New Description : "),ask_status('New Status : '))
+                    edit_task(ask_user(), ask_number('Task Number : '),input("New Title : "),input("New Description : "),ask_status('New Status : '))
                 case "quit":
                     print('Goodbye!')
                     break

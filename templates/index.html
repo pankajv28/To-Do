@@ -15,10 +15,16 @@
                 <p class="subtitle">A clear view of what you need to do.</p>
             </div>
             <div class="header-actions">
+                <span class="welcome-user">
+                    Signed in as <strong>{{ session.get('username', 'user') }}</strong>
+                </span>
                 <div class="task-count">
                     <span class="count-dot" aria-hidden="true"></span>
                     <span>{{ tasks|length }} task{% if tasks|length != 1 %}s{% endif %}</span>
                 </div>
+                <form class="logout-form" action="{{ url_for('logout') }}" method="POST">
+                    <button class="secondary-button" type="submit">Log out</button>
+                </form>
             </div>
         </header>
 
