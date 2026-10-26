@@ -1,0 +1,619 @@
+/* =========================================================
+   Shared application styles
+   ========================================================= */
+
+/* Base */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 24px 32px 0;
+    background: #f8f8f6;
+    color: #292929;
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+}
+
+h1 {
+    margin: 16px 0 12px;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+/* Compact sticky Tasks title, directly below the welcome/logout row */
+body:has(.tasks-container) > h1 {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    margin: 0 0 12px;
+    padding: 6px 0;
+    background: #f8f8f6;
+    font-size: 24px;
+    line-height: 1.25;
+}
+
+h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* Task-page top bar: stays visible while the task board scrolls */
+body:has(.tasks-container) > .top-right {
+    position: fixed;
+    top: 12px;
+    right: 32px;
+    z-index: 30;
+    max-width: calc(100vw - 28px);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    margin: 0;
+    padding: 6px 0;
+    background: #f8f8f6;
+    color: #555;
+    font-size: 14px;
+}
+
+.top-right form {
+    margin: 0;
+}
+
+/* Buttons */
+button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 14px;
+    border: 1px solid #deded9;
+    border-radius: 8px;
+    background: #fff;
+    color: #292929;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.3;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+button:hover {
+    border-color: #c8c8c1;
+    background: #f0f0ed;
+}
+
+button:focus-visible {
+    outline: 2px solid #858578;
+    outline-offset: 3px;
+}
+
+/* Flash notifications */
+.flash-messages {
+    margin: 16px 0;
+}
+
+.flash-message {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 16px 0;
+    padding: 14px 18px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.flash-success {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.flash-error {
+    border-color: #fecaca;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.flash-close {
+    flex: 0 0 auto;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.flash-close:hover {
+    border-color: transparent;
+    background: transparent;
+    opacity: 0.7;
+}
+
+/* Task board: each column has its own rounded frame and scroll area */
+.board-scroll {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 2px 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.board-scroll::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.tasks-container {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(260px, 1fr));
+    align-items: stretch;
+    gap: 24px;
+    width: 100%;
+    min-width: 840px;
+    margin: 0;
+    scrollbar-width: none;
+}
+
+.tasks-container > .task-column {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: calc(100vh - 112px);
+    max-height: calc(100vh - 112px);
+    min-height: 240px;
+    min-width: 0;
+    padding: 0 0 12px;
+    border: 1px solid #e5e5e0;
+    border-radius: 14px;
+    background: #f0f0ed;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    clip-path: inset(0 round 14px);
+}
+
+.tasks-container::-webkit-scrollbar {
+    height: 0;
+}
+
+.tasks-container:hover {
+    scrollbar-width: thin;
+    scrollbar-color: #999 transparent;
+}
+
+.tasks-container:hover::-webkit-scrollbar {
+    height: 6px;
+}
+
+.tasks-container:hover::-webkit-scrollbar-thumb {
+    background: #999;
+    border-radius: 10px;
+}
+
+.tasks-container > .task-column::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.column-header {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+    min-height: 72px;
+    margin: 0 0 12px;
+    padding: 12px 18px;
+    border: 0;
+    border-bottom: 1px solid #e5e5e0;
+    border-radius: 13px 13px 0 0;
+    background: #f0f0ed;
+}
+
+.column-header h2 {
+    font-size: 16px;
+}
+
+/* Add buttons */
+.add-button {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+    border-color: #d8d8d2;
+    border-radius: 8px;
+    background: #fafaf8;
+    color: #555;
+    font-size: 23px;
+    font-weight: 300;
+    line-height: 1;
+}
+
+.add-button:hover {
+    background: #e7e7e1;
+}
+
+/* Task cards */
+.task-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    margin: 0 18px 10px;
+    padding: 12px 14px;
+    border: 1px solid #e5e5e0;
+    border-radius: 9px;
+    background: #fff;
+    cursor: pointer;
+    position: relative;
+    z-index: 0;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+
+.task-item:hover {
+    border-color: #c9c9c1;
+    box-shadow: 0 3px 10px rgb(0 0 0 / 4%);
+    transform: translateY(-1px);
+}
+
+.task-item > span {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 14px;
+}
+
+/* Task and user action icons */
+.task-actions,
+.user-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 4px;
+}
+
+.task-actions button,
+.user-actions button {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #777;
+    font-size: 19px;
+    line-height: 1;
+}
+
+.task-actions button:hover,
+.user-actions button:hover {
+    border-color: transparent;
+    background: #f0f0ed;
+    color: #222;
+}
+
+/* Shared dialogs */
+dialog {
+    width: min(520px, calc(100% - 32px));
+    max-width: 100%;
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    margin: auto;
+    padding: 26px;
+    border: 1px solid #e5e5e0;
+    border-radius: 14px;
+    background: #fff;
+    color: #292929;
+    box-shadow: 0 18px 60px rgb(0 0 0 / 12%);
+}
+
+dialog::backdrop {
+    background: rgb(30 30 27 / 38%);
+    backdrop-filter: blur(3px);
+}
+
+dialog form {
+    margin: 0;
+}
+
+dialog br {
+    display: none;
+}
+
+.dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.dialog-header h2 {
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.dialog-close {
+    flex: 0 0 32px;
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    min-height: 32px;
+    margin-left: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #777;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.dialog-close:hover {
+    border-color: transparent;
+    background: #f0f0ed;
+    color: #222;
+}
+
+/* Shared form fields */
+dialog label,
+dialog .form-row {
+    display: block;
+    margin: 0 0 5px;
+    color: #555;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+dialog input:not([type="hidden"]),
+dialog textarea,
+dialog select,
+.admin-toolbar select {
+    padding: 11px 12px;
+    border: 1px solid #deded9;
+    border-radius: 8px;
+    background-color: #fcfcfa;
+    color: #292929;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+dialog input:not([type="hidden"]),
+dialog textarea,
+dialog select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    margin: 0 0 16px;
+}
+
+dialog select,
+.admin-toolbar select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23292929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px 16px;
+}
+
+dialog textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+dialog select {
+    margin-bottom: 20px;
+}
+
+dialog input[type="hidden"] {
+    display: none;
+}
+
+dialog input:focus,
+dialog textarea:focus,
+dialog select:focus,
+.admin-toolbar select:focus {
+    outline: none;
+    border-color: #929287;
+    box-shadow: 0 0 0 3px rgb(120 120 105 / 10%);
+}
+
+/* Dialog buttons */
+.logout-button,
+dialog form button[type="submit"],
+dialog form button[type="button"] {
+    display: inline-flex;
+    vertical-align: middle;
+    margin: 0 8px 0 0;
+}
+
+.logout-button,
+dialog form button[type="submit"] {
+    border-color: #292929;
+    background: #292929;
+    color: #fff;
+}
+
+.logout-button:hover,
+dialog form button[type="submit"]:hover {
+    border-color: #444;
+    background: #444;
+}
+
+dialog form button.delete-button {
+    border-color: #dc2626;
+    background: #dc2626;
+    color: #fff;
+}
+
+dialog form button.delete-button:hover {
+    border-color: #b91c1c;
+    background: #b91c1c;
+}
+
+.dialog-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-top: 22px;
+}
+
+.dialog-buttons button {
+    margin: 0;
+}
+
+.dialog-buttons button[type="button"] {
+    border-color: #deded9;
+    background: #fff;
+    color: #292929;
+}
+
+/* Task details dialog */
+#task-details-dialog .details-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 22px;
+}
+
+#task-details-dialog .details-header > .dialog-header {
+    display: contents;
+}
+
+#task-details-dialog #details-title {
+    order: 1;
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+}
+
+#task-details-dialog .details-header > .task-actions {
+    order: 2;
+    margin-left: 0;
+}
+
+#task-details-dialog .details-header .dialog-close {
+    order: 3;
+    margin-left: 0;
+}
+
+#task-details-dialog p {
+    margin: 16px 0 8px;
+    color: #555;
+    font-size: 14px;
+}
+
+#task-details-dialog p strong {
+    color: #292929;
+    font-weight: 600;
+}
+
+#details-description {
+    min-height: 48px;
+    padding: 12px 13px;
+    border: 1px solid #ededE8;
+    border-radius: 8px;
+    background: #f7f7f4;
+    color: #444;
+    font-size: 14px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+#details-created-date {
+    color: #777;
+}
+
+/* Delete confirmation text */
+#delete-task-dialog p {
+    margin: 0 0 20px;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* Responsive task board and dialogs */
+
+@media (max-width: 800px) {
+    body {
+        padding: 18px 18px 0;
+    }
+
+    .board-scroll {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .tasks-container {
+        grid-template-columns: repeat(3, minmax(240px, 1fr));
+        gap: 16px;
+        min-width: 768px;
+    }
+
+    body:has(.tasks-container) > .top-right {
+        right: 18px;
+        top: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 14px 14px 0;
+    }
+
+    body:has(.tasks-container) > .top-right {
+        right: 14px;
+        top: 6px;
+        gap: 10px;
+    }
+
+    dialog {
+        padding: 20px;
+    }
+
+    #task-details-dialog .details-header {
+        gap: 8px;
+    }
+
+    #task-details-dialog .details-header > .task-actions {
+        gap: 2px;
+    }
+
+    .task-item {
+        padding: 12px;
+    }
+}

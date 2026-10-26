@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tasks</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <div class = "top-right">
+        <span>Welcome, {{username}}</span>
+        <form action="{{ url_for('logout') }}" method="GET">
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </div>
+    <h1>Tasks</h1>
+    <div class="board-scroll">
+        <div class="tasks-container">
+            <div class="task-column">
+                <div class="column-header">
+                    <h2>Planned</h2>
+                    <button type="button" class="add-button" onclick="openAddTask('tostart')">+</button>
+                </div>
+
+                {% for task in tasks %}
+                    {% if task[3] == 'tostart' %}
+                        <div class="task-item" onclick='openTaskDetails({{ task[0] }}, {{ task[1] | tojson }}, {{ task[2] | tojson }}, {{ task[3] | tojson }}, {{ task[4] | tojson }})'>
+                            <span>{{ task[1] }}</span>
+                            <div class="task-actions">
+                                <button type="button" onclick='event.stopPropagation();openEditTask({{task[0]}},{{task[1]|tojson}},{{task[2]|tojson}},{{task[3]|tojson}})'>&#9998;</button>
+                                <button type="button" onclick="event.stopPropagation();openDeleteTask({{task[0]}})">&#128465;</button>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        
+            <div class="task-column">
+                <div class="column-header">
+                    <h2>Ongoing</h2>
+                    <button type="button" class="add-button" onclick="openAddTask('ongoing')">+</button>
+                </div>
+
+                {% for task in tasks %}
+                    {% if task[3] == 'ongoing' %}
+                        <div class="task-item" onclick='openTaskDetails({{ task[0] }}, {{ task[1] | tojson }}, {{ task[2] | tojson }}, {{ task[3] | tojson }}, {{ task[4] | tojson }})'>
+                            <span>{{ task[1] }}</span>
+                            <div class="task-actions">
+                                <button type="button" onclick='event.stopPropagation();openEditTask({{task[0]}},{{task[1]|tojson}},{{task[2]|tojson}},{{task[3]|tojson}})'>&#9998;</button>
+                                <button type="button" onclick="event.stopPropagation();openDeleteTask({{task[0]}})">&#128465;</button>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        
+            <div class="task-column">
+                <div class="column-header">
+                    <h2>Done</h2>
+                    <button type="button" class="add-button" onclick="openAddTask('done')">+</button>
+                </div>
+
+                {% for task in tasks %}
+                    {% if task[3] == 'done' %}
+                        <div class="task-item" onclick='openTaskDetails({{ task[0] }}, {{ task[1] | tojson }}, {{ task[2] | tojson }}, {{ task[3] | tojson }}, {{ task[4] | tojson }})'>
+                            <span>{{ task[1] }}</span>
+                            <div class="task-actions">
+                                <button type="button" onclick='event.stopPropagation();openEditTask({{task[0]}},{{task[1]|tojson}},{{task[2]|tojson}},{{task[3]|tojson}})'>&#9998;</button>
+                                <button type="button" onclick="event.stopPropagation();openDeleteTask({{task[0]}})">&#128465;</button>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+<!--- Adding Task Dialog Box and Script-->
+    <dialog id="add-task-dialog">
+        <div class="dialog-header">
+            <h2>Add Task</h2>
+            <button type="button" class="dialog-close"
+                    onclick="document.getElementById('add-task-dialog').close()"
+                    aria-label="Close">&times;</button>
+        </div>
+
+        <form id="add-task-form" action="{{url_for('addtask')}}" method="POST">
+            <label for="add-task-title" class="form-row">Title (Max 50 characters)</label>
+            <input type="text" id="add-task-title" maxlength="50" name="title" required>
+
+            <label for="add-task-description" class="form-row">Description</label>
+            <textarea id="add-task-description" name="description"></textarea>
+            
+            <input type="hidden" id="add-task-status" name="status">
+
+            <button type="submit">Submit</button>
+            <button type="button"
+                onclick="document.getElementById('add-task-dialog').close()">
+            Cancel
+            </button>
+        </form>
+    </dialog>
+    
+    <script>
+        function openAddTask(status) {
+            console.log("Status received:", status);
+            document.getElementById('add-task-form').reset();
+            document.getElementById('add-task-status').value = status;    
+            document.getElementById('add-task-dialog').showModal();
+        }
+    </script>
+
+<!--- Editing Task Dialog Box and Script-->
+    <dialog id="edit-task-dialog">
+        <div class="dialog-header">
+            <h2>Edit Task</h2>
+            <button type="button" class="dialog-close"
+                    onclick="document.getElementById('edit-task-dialog').close()"
+                    aria-label="Close">&times;</button>
+        </div>
+        <form id="edit-task-form" action="{{url_for('edittask')}}" method="POST">
+            <input type="hidden" id="edit-task-number" name="task_number">
+
+            <label for="edit-task-title" class="form-row">Title</label>
+            <input type="text" id="edit-task-title" name="title" required>
+
+            <label for="edit-task-description" class="form-row">Description</label>
+            <textarea id="edit-task-description" name="description"></textarea>
+
+            <label for="edit-task-status">Status</label>
+            <select id="edit-task-status" name="status" required>
+                <option value="" disabled selected>Select a status</option>
+                <option value="tostart">Planned</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="done">Done</option>
+            </select>
+
+            <button type="submit">Submit</button>
+            <button type="button"
+                    onclick="document.getElementById('edit-task-dialog').close()">
+                Cancel
+            </button>
+        </form>
+    </dialog>
+    
+    <script>
+        function openEditTask(tasknumber, tasktitle, taskdescription, taskstatus) {
+            console.log("Edit button clicked", tasknumber );
+            document.getElementById('edit-task-form').reset();
+            document.getElementById('edit-task-number').value = tasknumber; 
+            document.getElementById('edit-task-title').value = tasktitle; 
+            document.getElementById('edit-task-description').value = taskdescription;
+            document.getElementById('edit-task-status').value = taskstatus;  
+            document.getElementById('edit-task-dialog').showModal();
+        }
+    </script>
+
+<!--- Show Task Dialog Box and Script-->
+    <dialog id="task-details-dialog">
+    
+        <div class="details-header">
+            <div class="dialog-header">
+                <h2 id="details-title">Show Task</h2>
+                <button type="button" class="dialog-close"
+                        onclick="document.getElementById('task-details-dialog').close()"
+                        aria-label="Close">&times;</button>
+            </div>
+            <div class="task-actions">
+                <button type="button" onclick="editTaskFromDetails()" class = "edit-button" title="Edit">&#9998;</button>
+                <button type="button" onclick="deleteTaskFromDetails()" class = "delete-button" title="Delete">&#128465;</button>
+            </div>
+        </div>
+    
+        <p><strong>Status:</strong> <span id="details-status"></span></p>
+    
+        <p><strong>Description</strong></p>
+        <div id="details-description"></div>
+    
+        <p><strong>Created on:</strong> <span id="details-created-date"></span></p>
+    
+    </dialog>
+    
+    <script>
+        function openTaskDetails(taskId, title, description, status, createdDate) {
+            document.getElementById('details-title').textContent = title;
+            document.getElementById('details-description').textContent = description;
+            document.getElementById('details-status').textContent = status;
+            document.getElementById('details-created-date').textContent = createdDate;
+        
+            document.querySelector('#task-details-dialog .edit-button').onclick =
+                function() {
+                    document.getElementById('task-details-dialog').close();
+                    openEditTask(taskId, title, description, status);
+                };
+            
+            document.querySelector('#task-details-dialog .delete-button').onclick =
+                function() {
+                    document.getElementById('task-details-dialog').close();
+                    openDeleteTask(taskId);
+                };
+            
+            document.getElementById('task-details-dialog').showModal();
+        }
+    </script>
+
+<!--- Deleting Task Dialog Box and Script-->
+    <dialog id="delete-task-dialog">
+        <div class="dialog-header">
+            <h2>Delete Task</h2>
+            <button type="button" class="dialog-close"
+                    onclick="document.getElementById('delete-task-dialog').close()"
+                    aria-label="Close">&times;</button>
+        </div>
+        <form id="delete-task-form" action="{{url_for('deletetask')}}" method="POST">
+            <input type="hidden" id="delete-task-number" name="task_number">
+
+            <p>Are you sure you want to delete this task?? This action cant be undone.</p>
+
+            <button type="submit" class="delete-button">Delete</button>
+            <button type="button"
+                onclick="document.getElementById('delete-task-dialog').close()">
+            Cancel
+            </button>
+        </form>
+    </dialog>
+    
+    <script>
+        function openDeleteTask(tasknumber) {
+            console.log("Delete button clicked", tasknumber);
+            document.getElementById('delete-task-number').value = tasknumber;    
+            document.getElementById('delete-task-dialog').showModal();
+        }
+    </script>
+
+</body>
+</html>

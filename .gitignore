@@ -1,0 +1,7 @@
+# Private SQLite database
+todo.db
+
+# SQLite temporary and journal files
+todo.db-*
+
+__pycache__/

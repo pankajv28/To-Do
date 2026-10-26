@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registered Users</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_page.css') }}">
+    </head>
+<body class="admin-body">
+    <div class="top-right">
+        <span>Welcome, {{ session.get('username', '') }}</span>
+        <form action="{{ url_for('logout') }}" method="GET">
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}" role="status">
+                            <span>{{ message }}</span>
+                            <button type="button" class="flash-close" aria-label="Dismiss message">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+    <main class="admin-page">
+        <h1>Registered Users</h1>
+
+        <div class="admin-toolbar">
+            <select name="group" id="group-filter"  aria-label="Filter users">
+                <option value="normal"
+                    {% if selected_group == "normal" %}selected{% endif %}>
+                    Application
+                </option>
+                <option value="admin"
+                    {% if selected_group == "admin" %}selected{% endif %}>
+                    Administrator
+                </option>
+            </select>
+            <button class="add-button" id="open-add" type="button" aria-label="Add user">+</button>
+        </div>
+
+        <section class="users-panel">
+            <div class="users-heading">
+                <span>Username</span>
+                <span>Actions</span>
+            </div>
+
+            <div id="users-list">
+                {% for user in users %}
+                <div class="user-row" data-group="{{ user[1] }}" data-username="{{ user[0] }}">
+                    <span class="username">{{ user[0] }}</span>
+                    <div class="user-actions">
+                        <button type="button" class="edit-user" aria-label="Edit {{ user[0] }}" title="Edit">&#9998;</button>
+                        <button type="button" class="delete-user" aria-label="Delete {{ user[0] }}" title="Delete">&#128465;</button>
+                    </div>
+                </div>
+                {% else %}
+                <p class="empty-users">No users found.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <dialog id="add-dialog" class="admin-dialog">
+        <div class="dialog-header">
+            <h2>Add User</h2>
+            <button type="button" class="dialog-close" data-close aria-label="Close">&times;</button>
+        </div>
+        <form id="add-form" action="{{ url_for('createuser') }}" method="POST">
+           <label for="new-username">Username</label>
+            <input id="new-username" name="username" type="text" maxlength="15" required>
+
+            <label for="new-password">Password</label>
+            <input id="new-password" name="password" type="password" required>
+
+            <label for="new-confirm-password">Confirm Password</label>
+            <input id="new-confirm-password" name="confirm_password" type="password" required>
+
+            <label for="new-group">Group</label>
+            <select id="new-group" name="group">
+                <option value="normal">Application</option>
+                <option value="admin">Administrator</option>
+            </select>
+
+            <div class="dialog-buttons">
+                <button type="submit">Submit</button>
+                <button type="button" data-close>Cancel</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="edit-dialog" class="admin-dialog">
+        <div class="dialog-header">
+            <h2>Edit User</h2>
+            <button type="button" class="dialog-close" data-close aria-label="Close">&times;</button>
+        </div>
+        <form id="edit-form" action="{{ url_for('editpassword') }}" method="POST">
+            <input type="hidden" name="group" value="{{ selected_group }}">
+            <label for="edit-username">Username</label>
+            <input id="edit-username" name="username" type="text" maxlength="15" readonly required>
+
+            <label for="edit-password">Password</label>
+            <input id="edit-password" name="password" type="password" required>
+
+            <label for="edit-confirm-password">Confirm Password</label>
+            <input id="edit-confirm-password" name="confirm_password" type="password" required>
+
+            <div class="dialog-buttons">
+                <button type="submit">Submit</button>
+                <button type="button" data-close>Cancel</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="delete-dialog" class="admin-dialog">
+        <div class="dialog-header">
+            <h2>Delete User</h2>
+            <button type="button" class="dialog-close" data-close aria-label="Close">&times;</button>
+        </div>
+        <p>Are you sure? This action can't be undone.</p>
+        <form id="delete-form" action="{{ url_for('deleteuser') }}" method="POST">
+            <input type="hidden" name="group" value="{{ selected_group }}">
+            <input id="delete-username" name="username" type="hidden">
+            <div class="dialog-buttons">
+                <button type="submit" class="delete-button">Delete</button>
+                <button type="button" data-close>Cancel</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script>
+        const groupFilter = document.getElementById('group-filter');
+        const addDialog = document.getElementById('add-dialog');
+        const editDialog = document.getElementById('edit-dialog');
+        const deleteDialog = document.getElementById('delete-dialog');
+
+        function filterUsers() {
+            document.querySelectorAll('.user-row').forEach(row => {
+                row.hidden = row.dataset.group !== groupFilter.value;
+            });
+        }
+
+        groupFilter.addEventListener('change', () => {
+            filterUsers();
+            syncSelectedGroup();
+        });
+
+        filterUsers();
+
+        document.getElementById('open-add').addEventListener('click', () => {
+            document.getElementById('add-form').reset();
+            document.getElementById('new-group').value = groupFilter.value;
+            addDialog.showModal();
+        });
+
+        document.querySelectorAll('.edit-user').forEach(button => {
+            button.addEventListener('click', () => {
+                const username = button.closest('.user-row').dataset.username;
+                document.getElementById('edit-form').reset();
+                document.getElementById('edit-username').value = username;
+                editDialog.showModal();
+            });
+        });
+
+        document.querySelectorAll('.delete-user').forEach(button => {
+            button.addEventListener('click', () => {
+                document.getElementById('delete-username').value =
+                    button.closest('.user-row').dataset.username;
+                deleteDialog.showModal();
+            });
+        });
+
+        document.querySelectorAll('[data-close]').forEach(button => {
+            button.addEventListener('click', () => button.closest('dialog').close());
+        });
+
+        [addDialog, editDialog, deleteDialog].forEach(dialog => {
+            dialog.addEventListener('click', event => {
+                if (event.target === dialog) dialog.close();
+            });
+        });
+
+        function passwordsMatch(form) {
+            const password = form.elements.password;
+            const confirmation = form.elements.confirm_password;
+            confirmation.setCustomValidity(
+                password.value === confirmation.value ? '' : 'Passwords do not match.'
+            );
+            return form.reportValidity();
+        }
+
+        function syncSelectedGroup() {
+            document.querySelectorAll(
+                '#edit-form input[name="group"], #delete-form input[name="group"]'
+            ).forEach(input => {
+                input.value = groupFilter.value;
+            });
+        }
+
+        ['add-form', 'edit-form'].forEach(id => {
+            const form = document.getElementById(id);
+        
+            form.elements.confirm_password.addEventListener('input', () => {
+                form.elements.confirm_password.setCustomValidity('');
+            });
+        
+            form.addEventListener('submit', event => {
+                if (!passwordsMatch(form)) {
+                    event.preventDefault();
+                }
+            });
+        });
+
+    </script>
+
+    <script>
+        document.querySelectorAll('.flash-close').forEach(button => {
+            button.addEventListener('click', () => {
+                button.closest('.flash-message').remove();
+            });
+        });
+    </script>
+
+</body>
+</html>

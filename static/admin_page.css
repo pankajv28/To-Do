@@ -1,0 +1,148 @@
+/* Admin-only layout. Shared controls, fields, dialogs, buttons, and icons
+   continue to use the existing rules in styles.css. */
+
+/* Match the fixed top-right welcome/logout bar on the Tasks page. */
+.admin-body > .top-right {
+    position: fixed;
+    top: 12px;
+    right: 32px;
+    z-index: 30;
+    max-width: calc(100vw - 28px);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    margin: 0;
+    padding: 6px 0;
+    background: #f8f8f6;
+    color: #555;
+    font-size: 14px;
+}
+
+.admin-body > .top-right form {
+    margin: 0;
+}
+
+/* Use the same compact heading rhythm as the Tasks page. */
+.admin-page {
+    width: 100%;
+    min-width: 0;
+}
+
+.admin-page h1 {
+    margin: 0 0 12px;
+    padding: 6px 0;
+    font-size: 24px;
+    line-height: 1.25;
+}
+
+.admin-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.admin-toolbar select {
+    width: 220px;
+    max-width: 100%;
+    margin: 0;
+    background-color: #fff;
+}
+
+.users-panel {
+    padding: 18px;
+    border: 1px solid #e5e5e0;
+    border-radius: 14px;
+    background: #f0f0ed;
+}
+
+.users-heading,
+.user-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 76px;
+    align-items: center;
+    gap: 12px;
+}
+
+.users-heading {
+    padding: 0 14px 14px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.users-heading span:last-child {
+    text-align: center;
+}
+
+.user-row {
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    border: 1px solid #e5e5e0;
+    border-radius: 9px;
+    background: #fff;
+}
+
+.user-row:last-child {
+    margin-bottom: 0;
+}
+
+.user-row[hidden] {
+    display: none !important;
+}
+
+.username {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 14px;
+}
+
+.empty-users {
+    padding: 20px 14px;
+    color: #777;
+    text-align: center;
+    font-size: 14px;
+}
+
+@media (max-width: 800px) {
+    .admin-body {
+        padding-right: 18px;
+        padding-left: 18px;
+    }
+
+    .admin-body > .top-right {
+        right: 18px;
+        top: 8px;
+    }
+}
+
+@media (max-width: 520px) {
+    .admin-page h1 {
+        margin-top: 72px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-body {
+        padding-right: 14px;
+        padding-left: 14px;
+    }
+
+    .admin-body > .top-right {
+        right: 14px;
+        top: 6px;
+        gap: 10px;
+    }
+
+    .users-panel {
+        padding: 10px;
+    }
+
+    .users-heading,
+    .user-row {
+        grid-template-columns: minmax(0, 1fr) 76px;
+        padding-right: 8px;
+        padding-left: 10px;
+    }
+}
