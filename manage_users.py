@@ -1,13 +1,14 @@
 from werkzeug.security import generate_password_hash,check_password_hash
 import sqlite3
 
-def create_user(username, password, group):
+def create_user(username, displayname, password, group):
     connection = sqlite3.connect('todo.db')
+    connection.execute('PRAGMA foreign_keys = ON')
     cur = connection.cursor()
 
     try: 
-        cur.execute('INSERT INTO users (username,password_hash,"group") VALUES (?,?,?)',
-                       (username,generate_password_hash(password), group))
+        cur.execute('INSERT INTO users (username,displayname, password_hash,"group") VALUES (?,?,?,?)',
+                       (username, displayname, generate_password_hash(password), group))
         connection.commit()
         return True
     
@@ -16,6 +17,7 @@ def create_user(username, password, group):
 
 def edit_password(username, password):
     connection = sqlite3.connect('todo.db')
+    connection.execute('PRAGMA foreign_keys = ON')
     cur = connection.cursor()
 
     try:
@@ -32,17 +34,18 @@ def edit_password(username, password):
 
 def login_user(username,password):
     connection = sqlite3.connect('todo.db')
+    connection.execute('PRAGMA foreign_keys = ON')
     cur = connection.cursor()
 
     try:
-        cur.execute('select password_hash, user_id, "group" from users where username = ?',
+        cur.execute('select password_hash, displayname, id, role from users where username = ?',
                            (username,))
         result = cur.fetchone()
         if result is None:
             return False, False, False
 
-        password_hash, user_id, group = result
-        return check_password_hash(password_hash,password), user_id, group
+        password_hash, name, user_id, role = result
+        return check_password_hash(password_hash,password), name, user_id, role
 
 
     finally:
@@ -50,6 +53,7 @@ def login_user(username,password):
 
 def show_users():
     connection = sqlite3.connect('todo.db')
+    connection.execute('PRAGMA foreign_keys = ON')
     cur = connection.cursor()
 
     try:
@@ -65,6 +69,7 @@ def show_users():
 
 def delete_user(username):
     connection = sqlite3.connect('todo.db')
+    connection.execute('PRAGMA foreign_keys = ON')
     cur = connection.cursor()
 
     try: 

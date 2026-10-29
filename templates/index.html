@@ -13,7 +13,93 @@
             <button type="submit" class="logout-button">Logout</button>
         </form>
     </div>
-    <h1>Tasks</h1>
+
+    <div class="project-switcher">
+        <button
+            type="button"
+            class="project-switcher-button"
+            id="project-switcher-button"
+            aria-expanded="false"
+            aria-controls="project-menu"
+        >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H10l2 2h7.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/>
+            </svg>
+
+            <span>{{ projects|selectattr('0', 'equalto', selected_project_id)|map(attribute='1')|first|default('Select project', true) }}</span>
+
+            <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m7 10 5 5 5-5"/>
+            </svg>
+        </button>
+
+        <div class="project-menu" id="project-menu" hidden>
+            {% for project in projects %}
+                <form action="{{ url_for('home') }}" method="GET">
+                    <input type="hidden" name="project_id" value="{{ project[0] }}">
+
+                    <button
+                        type="submit"
+                        class="project-menu-item {% if project[0] == selected_project_id %}active{% endif %}"
+                    >
+                        <span class="project-check">
+                            {% if project[0] == selected_project_id %}✓{% endif %}
+                        </span>
+
+                        <svg class="menu-folder" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H10l2 2h7.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/>
+                        </svg>
+
+                        <span >{{ project[1] }}</span>
+                    </button>
+                </form>
+            {% endfor %}
+            {% if role == 'super' %}
+                <div class="project-menu-divider"></div>
+
+                <a href="{{ url_for('create_project') }}" class="project-menu-item menu-action">
+                    <span class="project-check"></span>
+                    <span class="menu-symbol">+</span>
+                    <span>Create project</span>
+                </a>
+
+                <a href="{{ url_for('manage_projects') }}" class="project-menu-item menu-action">
+                    <span class="project-check"></span>
+                    <span class="menu-symbol">⚙</span>
+                    <span>Manage projects</span>
+                </a>
+                {% endif %}
+        </div>
+    </div>
+
+    <script>
+        const switcherButton = document.getElementById('project-switcher-button');
+        const projectMenu = document.getElementById('project-menu');
+
+        switcherButton.addEventListener('click', function (event) {
+            event.stopPropagation();
+
+            const isOpen = !projectMenu.hidden;
+            projectMenu.hidden = isOpen;
+            switcherButton.setAttribute('aria-expanded', String(!isOpen));
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!event.target.closest('.project-switcher')) {
+                projectMenu.hidden = true;
+                switcherButton.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                projectMenu.hidden = true;
+                switcherButton.setAttribute('aria-expanded', 'false');
+                switcherButton.focus();
+            }
+        });
+    </script>
+
     <div class="board-scroll">
         <div class="tasks-container">
             <div class="task-column">

@@ -566,6 +566,135 @@ dialog form button.delete-button:hover {
     line-height: 1.7;
 }
 
+
+/* Project switcher */
+.project-switcher {
+    position: relative;
+    display: inline-block;
+    margin: 0;
+    z-index: 20;
+}
+
+.project-switcher-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 7px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.project-switcher-button:hover,
+.project-switcher-button[aria-expanded="true"] {
+    background: #efefed;
+}
+
+.project-switcher-button svg,
+.menu-folder {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.project-switcher-button .chevron {
+    width: 12px;
+    height: 12px;
+}
+
+.project-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 205px;
+    padding: 7px;
+    background: #fff;
+    border: 1px solid #e8e8e5;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 100;
+}
+
+.project-menu[hidden] {
+    display: none;
+}
+
+.project-menu form {
+    margin: 0;
+}
+
+.project-menu-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 35px;
+    gap: 9px;
+    padding: 7px 8px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #242424;
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.project-menu-item:hover {
+    background: #f3f3f1;
+}
+
+.project-menu-item.active {
+    background: #eef0f8;
+    color: #25365b;
+    font-weight: 600;
+}
+
+.project-check {
+    width: 12px;
+    flex-shrink: 0;
+    text-align: center;
+    font-size: 13px;
+}
+
+.menu-folder {
+    width: 13px;
+    height: 13px;
+    color: #536b9b;
+}
+
+.menu-symbol {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 13px;
+    flex-shrink: 0;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.project-menu-divider {
+    height: 1px;
+    margin: 6px 4px;
+    background: #e8e8e5;
+}
+
+.menu-action {
+    font-weight: 400;
+}
+
 /* Responsive task board and dialogs */
 
 @media (max-width: 800px) {

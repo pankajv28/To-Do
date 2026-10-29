@@ -1,6 +1,6 @@
-from todo import add_task, edit_task, delete_task, load_tasks
+from todo import add_task, edit_task, delete_task, load_tasks, get_user_projects
 from manage_users import create_user, edit_password, login_user, show_users, delete_user
-from flask import Flask, render_template, session, request, redirect, url_for, flash
+from flask import Flask, render_template, session, request, redirect, url_for, flash, abort
 import sqlite3
 from werkzeug.middleware.proxy_fix import ProxyFix
 import os
@@ -22,12 +22,13 @@ def login():
         session.clear()
         username = request.form['username']
         password = request.form['password']
-        login, user, group = login_user(username,password)
+        login, name, user, role = login_user(username,password)
         if login:
             session['user_id'] = user
             session['status'] = True
-            session['username'] = username
-            if group == 'admin':
+            session['username'] = name
+            session['role'] = role
+            if role == 'admin':
                 return redirect(url_for('admin'))
             return redirect(url_for('home'))
         else:
@@ -40,7 +41,7 @@ def createuser():
     if request.form['password'] == request.form['confirm_password'] :
         try:
             selected_group = request.form.get("group", "normal")
-            create_user(request.form['username'],request.form['password'], selected_group)
+            create_user(request.form['username'],request.form['displayname'],request.form['password'], selected_group)
             flash ('User Created.','success')
         except sqlite3.IntegrityError :
             flash ('Username already exists','error')
@@ -133,11 +134,49 @@ def deletetask():
 @app.route('/', methods = ['GET'])
 def home():
     if session.get('status', False):
-        tasks = load_tasks(session['user_id'])
-        return render_template('index.html', tasks = tasks, username = session.get('username'))
+        user_id = session['user_id']
+        projects = get_user_projects(user_id)
+        tasks = []
+        selected_project_id = None
+        if projects :
+            allowed_project_ids = [row[0] for row in projects]
+            project_id = request.args.get("project_id",type= int)
+            if project_id in allowed_project_ids:
+                selected_project_id = project_id
+            else:
+                selected_project_id = allowed_project_ids[0]
+            tasks = load_tasks(selected_project_id)
+        return render_template('index.html', tasks = tasks, username = session.get('username'), projects = projects, selected_project_id = selected_project_id, role = session['role'])
     else :
         session.clear()
         return (redirect(url_for('login')))
+
+# Create Project    
+@app.route('/projects/create')
+def create_project():
+    if not session.get('status', False):
+        return redirect(url_for('login'))
+    if session.get('role') != 'super':
+        abort(403)
+    return render_template(
+        'project_placeholder.html',
+        page_title='Create project',
+        username=session.get('username')
+    )
+
+# Manage Project
+@app.route('/projects/manage')
+def manage_projects():
+    if not session.get('status', False):
+        return redirect(url_for('login'))
+    if session.get('role') != 'super':
+        abort(403)
+    return render_template(
+        'project_placeholder.html',
+        page_title='Manage projects',
+        username=session.get('username')
+    )
+
 
 if __name__ == '__main__':
     app.run(debug=True, port = 5001)

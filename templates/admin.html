@@ -73,8 +73,11 @@
             <button type="button" class="dialog-close" data-close aria-label="Close">&times;</button>
         </div>
         <form id="add-form" action="{{ url_for('createuser') }}" method="POST">
-           <label for="new-username">Username</label>
+            <label for="new-username">Username (max 15 characters)</label>
             <input id="new-username" name="username" type="text" maxlength="15" required>
+
+            <label for="new-displayname">Display Name (max 15 characters)</label>
+            <input id="new-displayname" name="displayname" type="text" maxlength="15" required>
 
             <label for="new-password">Password</label>
             <input id="new-password" name="password" type="password" required>

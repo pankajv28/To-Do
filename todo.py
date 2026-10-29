@@ -10,8 +10,8 @@ def add_task(title, description, status, user_id):
         raise ValueError("Task title cannot exceed 50 characters.")
     cur = connection.cursor()
     try : 
-        cur.execute("INSERT INTO tasks (title, description,created_date,status, user_id) VALUES (?,?,?,?,?)",
-                    (title, description, date.today().isoformat(), status, user_id))
+        cur.execute("INSERT INTO tasks (title, description,created_date,status, creator_id,doer_id) VALUES (?,?,?,?,?)",
+                    (title, description, date.today().isoformat(), status, user_id, user_id))
         connection.commit()
     finally:
         connection.close()
@@ -25,7 +25,7 @@ def edit_task(task_number, new_title, new_description, new_status, user_id):
                         SET title = ?,
                             description = ?,
                             status = ?
-                            where id = ? and user_id = ?""",
+                            where id = ? and creator_id = ?""",
                             (new_title, new_description, new_status, task_number, user_id))
         connection.commit()
     finally:
@@ -43,11 +43,27 @@ def delete_task(task_number, user_id):
     finally:
         connection.close()   
 
-def load_tasks(user_id):
+def load_tasks(project_id):
     connection = sqlite3.connect('todo.db')
+    connection.execute('PRAGMA foreign_keys = ON')
     cur = connection.cursor()
     try : 
-        cur.execute('Select * from tasks where user_id = ?', (user_id,))
+        cur.execute('Select * from tasks where project_id = ?', (project_id,))
         return cur.fetchall()
+    finally:
+        connection.close()
+
+def get_user_projects(user_id):
+    connection = sqlite3.connect('todo.db')
+    connection.execute('PRAGMA foreign_keys = ON')
+    cur = connection.cursor()
+    try :
+        cur.execute("""SELECT p.id, p.name
+            FROM projects AS p
+            JOIN user_project_mapping AS m
+                ON p.id = m.project_id
+            WHERE m.user_id = ?
+            ORDER BY p.name""", (user_id,))
+        return cur.fetchall();
     finally:
         connection.close()
