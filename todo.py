@@ -1,7 +1,7 @@
 from datetime import date
 import sqlite3
 
-def add_task(title, description, status, user_id):
+def add_task(title, description, status, project_id, user_id):
     connection = sqlite3.connect('todo.db')
     connection.execute('PRAGMA foreign_keys = on')
     if not title:
@@ -10,13 +10,13 @@ def add_task(title, description, status, user_id):
         raise ValueError("Task title cannot exceed 50 characters.")
     cur = connection.cursor()
     try : 
-        cur.execute("INSERT INTO tasks (title, description,created_date,status, creator_id,doer_id) VALUES (?,?,?,?,?)",
-                    (title, description, date.today().isoformat(), status, user_id, user_id))
+        cur.execute("INSERT INTO tasks (title, description, status, project_id, creator_id, doer_id) VALUES (?,?,?,?,?,?)",
+                    (title, description, status, project_id, user_id, user_id))
         connection.commit()
     finally:
         connection.close()
 
-def edit_task(task_number, new_title, new_description, new_status, user_id):
+def edit_task(task_number, new_title, new_description, new_status):
     connection = sqlite3.connect('todo.db')
     connection.execute('PRAGMA foreign_keys = on')
     cur = connection.cursor()
@@ -25,23 +25,36 @@ def edit_task(task_number, new_title, new_description, new_status, user_id):
                         SET title = ?,
                             description = ?,
                             status = ?
-                            where id = ? and creator_id = ?""",
-                            (new_title, new_description, new_status, task_number, user_id))
+                            where id = ?""",
+                            (new_title, new_description, new_status, task_number))
         connection.commit()
     finally:
         connection.close()    
 
-def delete_task(task_number, user_id):
+def delete_task(task_number):
     connection = sqlite3.connect('todo.db')
     connection.execute('PRAGMA foreign_keys = on')
     cur = connection.cursor()
     try : 
         cur.execute("""delete from tasks
-                        where id = ? and user_id = ?""",
-                            (task_number,user_id))
+                        where id = ?""",
+                            (task_number,))
         connection.commit()
     finally:
         connection.close()   
+
+def archive_task(task_number):
+    connection = sqlite3.connect('todo.db')
+    connection.execute('PRAGMA foreign_keys = on')
+    cur = connection.cursor()
+    try : 
+        cur.execute("""UPDATE tasks
+                        SET status = "archived"
+                        where id = ? """,
+                            (task_number,))
+        connection.commit()
+    finally:
+        connection.close() 
 
 def load_tasks(project_id):
     connection = sqlite3.connect('todo.db')

@@ -5,3 +5,4 @@ todo.db
 todo.db-*
 
 __pycache__/
+todo_backup.db

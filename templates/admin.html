@@ -32,14 +32,18 @@
         <h1>Registered Users</h1>
 
         <div class="admin-toolbar">
-            <select name="group" id="group-filter"  aria-label="Filter users">
-                <option value="normal"
-                    {% if selected_group == "normal" %}selected{% endif %}>
-                    Application
-                </option>
+            <select name="role" id="role-filter"  aria-label="Filter users">
                 <option value="admin"
-                    {% if selected_group == "admin" %}selected{% endif %}>
+                    {% if selected_role == "admin" %}selected{% endif %}>
                     Administrator
+                </option>
+                <option value="super"
+                    {% if selected_role == "super" %}selected{% endif %}>
+                    Manager
+                </option>
+                <option value="app"
+                    {% if selected_role == "app" %}selected{% endif %}>
+                    Application
                 </option>
             </select>
             <button class="add-button" id="open-add" type="button" aria-label="Add user">+</button>
@@ -53,7 +57,7 @@
 
             <div id="users-list">
                 {% for user in users %}
-                <div class="user-row" data-group="{{ user[1] }}" data-username="{{ user[0] }}">
+                <div class="user-row" data-username="{{ user[0] }}" data-displayname="{{ user[1] }}" data-role="{{ user[2] }}">
                     <span class="username">{{ user[0] }}</span>
                     <div class="user-actions">
                         <button type="button" class="edit-user" aria-label="Edit {{ user[0] }}" title="Edit">&#9998;</button>
@@ -85,10 +89,11 @@
             <label for="new-confirm-password">Confirm Password</label>
             <input id="new-confirm-password" name="confirm_password" type="password" required>
 
-            <label for="new-group">Group</label>
-            <select id="new-group" name="group">
-                <option value="normal">Application</option>
+            <label for="new-role">Role</label>
+            <select id="new-role" name="role">
                 <option value="admin">Administrator</option>
+                <option value="super">Manager</option>
+                <option value="app">Application</option>
             </select>
 
             <div class="dialog-buttons">
@@ -103,10 +108,13 @@
             <h2>Edit User</h2>
             <button type="button" class="dialog-close" data-close aria-label="Close">&times;</button>
         </div>
-        <form id="edit-form" action="{{ url_for('editpassword') }}" method="POST">
-            <input type="hidden" name="group" value="{{ selected_group }}">
+        <form id="edit-form" action="{{ url_for('edituser') }}" method="POST">
+            <input type="hidden" name="role" value="{{ selected_role }}">
             <label for="edit-username">Username</label>
             <input id="edit-username" name="username" type="text" maxlength="15" readonly required>
+
+            <label for="edit-displayname">Display Name (max 15 characters)</label>
+            <input id="edit-displayname" name="displayname" type="text" maxlength="15">
 
             <label for="edit-password">Password</label>
             <input id="edit-password" name="password" type="password" required>
@@ -128,7 +136,7 @@
         </div>
         <p>Are you sure? This action can't be undone.</p>
         <form id="delete-form" action="{{ url_for('deleteuser') }}" method="POST">
-            <input type="hidden" name="group" value="{{ selected_group }}">
+            <input type="hidden" name="role" value="{{ selected_role }}">
             <input id="delete-username" name="username" type="hidden">
             <div class="dialog-buttons">
                 <button type="submit" class="delete-button">Delete</button>
@@ -138,35 +146,37 @@
     </dialog>
 
     <script>
-        const groupFilter = document.getElementById('group-filter');
+        const roleFilter = document.getElementById('role-filter');
         const addDialog = document.getElementById('add-dialog');
         const editDialog = document.getElementById('edit-dialog');
         const deleteDialog = document.getElementById('delete-dialog');
 
         function filterUsers() {
             document.querySelectorAll('.user-row').forEach(row => {
-                row.hidden = row.dataset.group !== groupFilter.value;
+                row.hidden = (row.dataset.role !== roleFilter.value);
             });
         }
 
-        groupFilter.addEventListener('change', () => {
+        roleFilter.addEventListener('change', () => {
             filterUsers();
-            syncSelectedGroup();
+            syncSelectedrole();
         });
 
         filterUsers();
 
         document.getElementById('open-add').addEventListener('click', () => {
             document.getElementById('add-form').reset();
-            document.getElementById('new-group').value = groupFilter.value;
+            document.getElementById('new-role').value = roleFilter.value;
             addDialog.showModal();
         });
 
         document.querySelectorAll('.edit-user').forEach(button => {
             button.addEventListener('click', () => {
                 const username = button.closest('.user-row').dataset.username;
+                const displayname = button.closest('.user-row').dataset.displayname;
                 document.getElementById('edit-form').reset();
                 document.getElementById('edit-username').value = username;
+                document.getElementById('edit-displayname').value = displayname;
                 editDialog.showModal();
             });
         });
@@ -198,11 +208,11 @@
             return form.reportValidity();
         }
 
-        function syncSelectedGroup() {
+        function syncSelectedrole() {
             document.querySelectorAll(
-                '#edit-form input[name="group"], #delete-form input[name="group"]'
+                '#edit-form input[name="role"], #delete-form input[name="role"]'
             ).forEach(input => {
-                input.value = groupFilter.value;
+                input.value = roleFilter.value;
             });
         }
 

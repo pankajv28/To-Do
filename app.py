@@ -1,5 +1,5 @@
-from todo import add_task, edit_task, delete_task, load_tasks, get_user_projects
-from manage_users import create_user, edit_password, login_user, show_users, delete_user
+from todo import add_task, edit_task, delete_task, load_tasks, get_user_projects, archive_task
+from manage_users import create_user, edit_user, login_user, show_users, delete_user
 from flask import Flask, render_template, session, request, redirect, url_for, flash, abort
 import sqlite3
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -40,26 +40,26 @@ def login():
 def createuser():
     if request.form['password'] == request.form['confirm_password'] :
         try:
-            selected_group = request.form.get("group", "normal")
-            create_user(request.form['username'],request.form['displayname'],request.form['password'], selected_group)
+            selected_role = request.form.get("role", "app")
+            create_user(request.form['username'],request.form['displayname'],request.form['password'], selected_role)
             flash ('User Created.','success')
         except sqlite3.IntegrityError :
             flash ('Username already exists','error')
-        return redirect(url_for('admin', group = selected_group))
+        return redirect(url_for('admin', role = selected_role))
     else :
         flash ('Passwords dont match','error')
         return (redirect(url_for('createuser')))
 
-#edit_forgot_password
-@app.route('/users/edit_password', methods = ['POST'])
-def editpassword():
+#edit_user_details
+@app.route('/users/edit_user', methods = ['POST'])
+def edituser():
     if request.form['password'] == request.form['confirm_password'] :
-        selected_group = request.form.get("group", "normal")
-        if edit_password(request.form['username'],request.form['password']):
+        selected_role = request.form.get("role", "app")
+        if edit_user(request.form['username'], request.form['displayname'],request.form['password']):
             flash ('Password Changed','success')
         else :
             flash ('Password not changed.','error')
-        return redirect(url_for('admin', group=selected_group))
+        return redirect(url_for('admin', role=selected_role))
     else :
         flash ('Passwords dont match','error')
         return (redirect(url_for('editpassword')))
@@ -68,13 +68,13 @@ def editpassword():
 @app.route('/users/delete_user', methods = ['POST'])
 def deleteuser():
     if session.get('status', False):
-        selected_group = request.form.get("group", "normal")
+        selected_role = request.form.get("role", "app")
         if request.form['username'] == session['username']:
             flash('Logged in user cant be deleted.','error')
         else:
             delete_user(request.form['username'])
             flash('User Deleted.', 'success')
-        return (redirect(url_for('admin',group=selected_group)))
+        return (redirect(url_for('admin', role=selected_role)))
     else :
         session.clear()
         return (redirect(url_for('login')))
@@ -84,8 +84,8 @@ def deleteuser():
 def admin():
     if session.get('status', False):
         users = show_users()
-        selected_group = request.args.get("group", "normal")
-        return render_template('admin.html', users = users, selected_group = selected_group)
+        selected_role = request.args.get("role", "app")
+        return render_template('admin.html', users = users, selected_role = selected_role)
     else :
         session.clear()
         return (redirect(url_for('login')))
@@ -102,7 +102,7 @@ def logout():
 def addtask():
     try:
         if session.get('status', False):
-            add_task(request.form['title'],request.form['description'],request.form['status'],session['user_id'])
+            add_task(request.form['title'],request.form['description'],request.form['status'],request.form['project_id'],session['user_id'])
             return (redirect(url_for('home')))
         else :
             session.clear()
@@ -114,7 +114,7 @@ def addtask():
 @app.route('/edit_task', methods = ['POST'])
 def edittask():
     if session.get('status', False):
-        edit_task(request.form['task_number'],request.form['title'],request.form['description'],request.form['status'],session['user_id'])
+        edit_task(request.form['task_number'],request.form['title'],request.form['description'],request.form['status'])
         return (redirect(url_for('home')))
     else :
         session.clear()
@@ -124,7 +124,17 @@ def edittask():
 @app.route('/delete', methods = ['POST'])
 def deletetask():
     if session.get('status', False):
-        delete_task(request.form['task_number'],session['user_id'])
+        delete_task(request.form['task_number'])
+        return (redirect(url_for('home')))
+    else :
+        session.clear()
+        return (redirect(url_for('login')))
+
+#archive_task
+@app.route('/archive', methods = ['POST'])
+def archivetask():
+    if session.get('status', False):
+        archive_task(request.form['task_number'])
         return (redirect(url_for('home')))
     else :
         session.clear()
@@ -176,7 +186,6 @@ def manage_projects():
         page_title='Manage projects',
         username=session.get('username')
     )
-
 
 if __name__ == '__main__':
     app.run(debug=True, port = 5001)

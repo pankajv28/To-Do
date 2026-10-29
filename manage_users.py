@@ -1,28 +1,28 @@
 from werkzeug.security import generate_password_hash,check_password_hash
 import sqlite3
 
-def create_user(username, displayname, password, group):
+def create_user(username, displayname, password, role):
     connection = sqlite3.connect('todo.db')
     connection.execute('PRAGMA foreign_keys = ON')
     cur = connection.cursor()
 
     try: 
-        cur.execute('INSERT INTO users (username,displayname, password_hash,"group") VALUES (?,?,?,?)',
-                       (username, displayname, generate_password_hash(password), group))
+        cur.execute('INSERT INTO users (username,displayname, password_hash, role) VALUES (?,?,?,?)',
+                       (username, displayname, generate_password_hash(password), role))
         connection.commit()
         return True
     
     finally:
         connection.close()
 
-def edit_password(username, password):
+def edit_user(username, displayname, password):
     connection = sqlite3.connect('todo.db')
     connection.execute('PRAGMA foreign_keys = ON')
     cur = connection.cursor()
 
     try:
-        cur.execute('UPDATE users SET password_hash = ? where username = ?',
-                           (generate_password_hash(password),username))
+        cur.execute('UPDATE users SET displayname = ?, password_hash = ? where username = ?',
+                           (displayname, generate_password_hash(password),username))
         if cur.rowcount > 0:
             connection.commit()
             return True
@@ -57,7 +57,7 @@ def show_users():
     cur = connection.cursor()
 
     try:
-        cur.execute('select username, "group" from users')
+        cur.execute('select username, displayname, role from users')
         users = cur.fetchall()
         if users is None:
             return False

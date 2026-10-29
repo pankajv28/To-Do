@@ -105,12 +105,12 @@
             <div class="task-column">
                 <div class="column-header">
                     <h2>Planned</h2>
-                    <button type="button" class="add-button" onclick="openAddTask('tostart')">+</button>
+                    <button type="button" class="add-button" onclick="openAddTask('tostart',{{ selected_project_id }})">+</button>
                 </div>
 
                 {% for task in tasks %}
                     {% if task[3] == 'tostart' %}
-                        <div class="task-item" onclick='openTaskDetails({{ task[0] }}, {{ task[1] | tojson }}, {{ task[2] | tojson }}, {{ task[3] | tojson }}, {{ task[4] | tojson }})'>
+                        <div class="task-item" onclick='openTaskDetails({{ task[0] }}, {{ task[1] | tojson }}, {{ task[2] | tojson }}, {{ task[3] | tojson }}, {{ task[4] | tojson }}, {{ task[5] | tojson }}, {{ task[6] | tojson }}, {{ task[7] | tojson }})'>
                             <span>{{ task[1] }}</span>
                             <div class="task-actions">
                                 <button type="button" onclick='event.stopPropagation();openEditTask({{task[0]}},{{task[1]|tojson}},{{task[2]|tojson}},{{task[3]|tojson}})'>&#9998;</button>
@@ -124,12 +124,12 @@
             <div class="task-column">
                 <div class="column-header">
                     <h2>Ongoing</h2>
-                    <button type="button" class="add-button" onclick="openAddTask('ongoing')">+</button>
+                    <button type="button" class="add-button" onclick="openAddTask('ongoing',{{ selected_project_id }})">+</button>
                 </div>
 
                 {% for task in tasks %}
                     {% if task[3] == 'ongoing' %}
-                        <div class="task-item" onclick='openTaskDetails({{ task[0] }}, {{ task[1] | tojson }}, {{ task[2] | tojson }}, {{ task[3] | tojson }}, {{ task[4] | tojson }})'>
+                        <div class="task-item" onclick='openTaskDetails({{ task[0] }}, {{ task[1] | tojson }}, {{ task[2] | tojson }}, {{ task[3] | tojson }}, {{ task[4] | tojson }}, {{ task[5] | tojson }}, {{ task[6] | tojson }}, {{ task[7] | tojson }})'>
                             <span>{{ task[1] }}</span>
                             <div class="task-actions">
                                 <button type="button" onclick='event.stopPropagation();openEditTask({{task[0]}},{{task[1]|tojson}},{{task[2]|tojson}},{{task[3]|tojson}})'>&#9998;</button>
@@ -143,12 +143,12 @@
             <div class="task-column">
                 <div class="column-header">
                     <h2>Done</h2>
-                    <button type="button" class="add-button" onclick="openAddTask('done')">+</button>
+                    <button type="button" class="add-button" onclick="openAddTask('done',{{ selected_project_id }})">+</button>
                 </div>
 
                 {% for task in tasks %}
                     {% if task[3] == 'done' %}
-                        <div class="task-item" onclick='openTaskDetails({{ task[0] }}, {{ task[1] | tojson }}, {{ task[2] | tojson }}, {{ task[3] | tojson }}, {{ task[4] | tojson }})'>
+                        <div class="task-item" onclick='openTaskDetails({{ task[0] }}, {{ task[1] | tojson }}, {{ task[2] | tojson }}, {{ task[3] | tojson }}, {{ task[4] | tojson }}, {{ task[5] | tojson }}, {{ task[6] | tojson }}, {{ task[7] | tojson }})'>
                             <span>{{ task[1] }}</span>
                             <div class="task-actions">
                                 <button type="button" onclick='event.stopPropagation();openEditTask({{task[0]}},{{task[1]|tojson}},{{task[2]|tojson}},{{task[3]|tojson}})'>&#9998;</button>
@@ -179,6 +179,7 @@
             <textarea id="add-task-description" name="description"></textarea>
             
             <input type="hidden" id="add-task-status" name="status">
+            <input type="hidden" id="add-task-project" name="project_id">
 
             <button type="submit">Submit</button>
             <button type="button"
@@ -189,10 +190,11 @@
     </dialog>
     
     <script>
-        function openAddTask(status) {
+        function openAddTask(status, project) {
             console.log("Status received:", status);
             document.getElementById('add-task-form').reset();
-            document.getElementById('add-task-status').value = status;    
+            document.getElementById('add-task-status').value = status;
+            document.getElementById('add-task-project').value = project;     
             document.getElementById('add-task-dialog').showModal();
         }
     </script>
@@ -219,6 +221,7 @@
                 <option value="" disabled selected>Select a status</option>
                 <option value="tostart">Planned</option>
                 <option value="ongoing">Ongoing</option>
+                <option value="skipped">Skipped</option>
                 <option value="done">Done</option>
             </select>
 
