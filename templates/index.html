@@ -7,7 +7,23 @@
 </head>
 
 <body>
-    <div class = "top-right">
+    <!-- Reusable icons used by task actions and sorting controls -->
+    <svg aria-hidden="true" style="display: none;">
+        <symbol id="icon-sort" viewBox="0 0 24 24">
+            <path d="M8 4v16"/>
+            <path d="M4 8l4-4 4 4"/>
+            <path d="M16 20V4"/>
+            <path d="M12 16l4 4 4-4"/>
+        </symbol>
+        <symbol id="icon-trash" viewBox="0 0 24 24">
+            <path d="M3 6h18"/>
+            <path d="M8 6V4h8v2"/>
+            <path d="M19 6l-1 14H6L5 6"/>
+            <path d="M10 11v5M14 11v5"/>
+        </symbol>
+    </svg>
+
+    <div class="top-right">
         <span>Welcome, {{username}}</span>
         <form action="{{ url_for('logout') }}" method="GET">
             <button type="submit" class="logout-button">Logout</button>
@@ -102,65 +118,225 @@
 
     <div class="board-scroll">
         <div class="tasks-container">
-            <div class="task-column">
+            <!-- Planned column -->
+            <section class="task-column" data-sort-column="planned">
                 <div class="column-header">
-                    <h2>Planned</h2>
-                    <button type="button" class="add-button" onclick="openAddTask('tostart',{{ selected_project_id }})">+</button>
+                    <div class="column-heading-group">
+                        <h2>Planned</h2>
+                        <span class="count-badge planned-count">{{ tasks|selectattr(3, 'equalto', 'tostart')|list|length }}</span>
+                    </div>
+                    <div class="column-controls">
+                        <button type="button" class="sort-button icon-button"
+                                data-sort-button="planned"
+                                aria-label="Change Planned task sort order"
+                                title="Change sort order">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-sort"></use></svg>
+                        </button>
+                        <button type="button" class="add-button" onclick="openAddTask('tostart', {{ selected_project_id }})"
+                                aria-label="Add planned task" title="Add planned task">+</button>
+                    </div>
                 </div>
 
                 {% for task in tasks %}
                     {% if task[3] == 'tostart' %}
-                        <div class="task-item" onclick='openTaskDetails({{ task[0] }}, {{ task[1] | tojson }}, {{ task[2] | tojson }}, {{ task[3] | tojson }}, {{ task[4] | tojson }}, {{ task[5] | tojson }}, {{ task[6] | tojson }}, {{ task[7] | tojson }})'>
-                            <span>{{ task[1] }}</span>
-                            <div class="task-actions">
-                                <button type="button" onclick='event.stopPropagation();openEditTask({{task[0]}},{{task[1]|tojson}},{{task[2]|tojson}},{{task[3]|tojson}})'>&#9998;</button>
-                                <button type="button" onclick="event.stopPropagation();openDeleteTask({{task[0]}})">&#128465;</button>
+                        <article class="task-item" data-task-status="tostart" data-created="{{ task[4] }}"
+                                 onclick='openEditTask({{ task[0] }}, {{ task[1]|tojson }}, {{ task[2]|tojson }}, {{ task[3]|tojson }}, {{ task[4]|tojson }}, {{ task[5]|tojson }}, {{ task[6]|tojson }}, {{ task[7]|tojson }})'>
+                            <div class="task-content">
+                                <span class="task-title">{{ task[1] }}</span>
+                                <span class="task-age" data-created="{{ task[4] }}"></span>
                             </div>
-                        </div>
+                            <div class="task-actions">
+                                <button type="button" class="icon-button delete-icon"
+                                        aria-label="Delete task" title="Delete task"
+                                        onclick="event.stopPropagation(); openDeleteTask({{ task[0] }})">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-trash"></use></svg>
+                                </button>
+                            </div>
+                        </article>
                     {% endif %}
                 {% endfor %}
-            </div>
-        
-            <div class="task-column">
+            </section>
+
+            <!-- Ongoing column -->
+            <section class="task-column" data-sort-column="ongoing">
                 <div class="column-header">
-                    <h2>Ongoing</h2>
-                    <button type="button" class="add-button" onclick="openAddTask('ongoing',{{ selected_project_id }})">+</button>
+                    <div class="column-heading-group">
+                        <h2>Ongoing</h2>
+                        <span class="count-badge ongoing-count">{{ tasks|selectattr(3, 'equalto', 'ongoing')|list|length }}</span>
+                    </div>
+                    <div class="column-controls">
+                        <button type="button" class="sort-button icon-button"
+                                data-sort-button="ongoing"
+                                aria-label="Change Ongoing task sort order"
+                                title="Change sort order">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-sort"></use></svg>
+                        </button>
+                        <button type="button" class="add-button" onclick="openAddTask('ongoing', {{ selected_project_id }})"
+                                aria-label="Add ongoing task" title="Add ongoing task">+</button>
+                    </div>
                 </div>
 
                 {% for task in tasks %}
                     {% if task[3] == 'ongoing' %}
-                        <div class="task-item" onclick='openTaskDetails({{ task[0] }}, {{ task[1] | tojson }}, {{ task[2] | tojson }}, {{ task[3] | tojson }}, {{ task[4] | tojson }}, {{ task[5] | tojson }}, {{ task[6] | tojson }}, {{ task[7] | tojson }})'>
-                            <span>{{ task[1] }}</span>
-                            <div class="task-actions">
-                                <button type="button" onclick='event.stopPropagation();openEditTask({{task[0]}},{{task[1]|tojson}},{{task[2]|tojson}},{{task[3]|tojson}})'>&#9998;</button>
-                                <button type="button" onclick="event.stopPropagation();openDeleteTask({{task[0]}})">&#128465;</button>
+                        <article class="task-item" data-task-status="ongoing" data-created="{{ task[4] }}"
+                                 onclick='openEditTask({{ task[0] }}, {{ task[1]|tojson }}, {{ task[2]|tojson }}, {{ task[3]|tojson }}, {{ task[4]|tojson }}, {{ task[5]|tojson }}, {{ task[6]|tojson }}, {{ task[7]|tojson }})'>
+                            <div class="task-content">
+                                <span class="task-title">{{ task[1] }}</span>
+                                <span class="task-age" data-created="{{ task[4] }}"></span>
                             </div>
-                        </div>
+                            <div class="task-actions">
+                                <button type="button" class="icon-button delete-icon"
+                                        aria-label="Delete task" title="Delete task"
+                                        onclick="event.stopPropagation(); openDeleteTask({{ task[0] }})">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-trash"></use></svg>
+                                </button>
+                            </div>
+                        </article>
                     {% endif %}
                 {% endfor %}
-            </div>
-        
-            <div class="task-column">
-                <div class="column-header">
-                    <h2>Done</h2>
-                    <button type="button" class="add-button" onclick="openAddTask('done',{{ selected_project_id }})">+</button>
+            </section>
+
+            <!-- Done / Archived / Skipped column -->
+            <section class="task-column" data-sort-column="final">
+                <div class="column-header final-column-header">
+                    <div class="status-tabs" role="tablist" aria-label="Task status">
+                        <button type="button" class="status-tab {% if selected_status == 'done' %}active{% endif %}" role="tab" aria-selected="{{ 'true' if selected_status == 'done' else 'false' }}"
+                                data-status-tab="done">Done <span class="tab-count done-count">{{ tasks|selectattr(3, 'equalto', 'done')|list|length }}</span></button>
+                        <button type="button" class="status-tab {% if selected_status == 'archived' %}active{% endif %}" role="tab" aria-selected="{{ 'true' if selected_status == 'archived' else 'false' }}"
+                                data-status-tab="archived">Archived <span class="tab-count archived-count">{{ tasks|selectattr(3, 'equalto', 'archived')|list|length }}</span></button>
+                        <button type="button" class="status-tab {% if selected_status == 'skipped' %}active{% endif %}" role="tab" aria-selected="{{ 'true' if selected_status == 'skipped' else 'false' }}"
+                                data-status-tab="skipped">Skipped <span class="tab-count skipped-count">{{ tasks|selectattr(3, 'equalto', 'skipped')|list|length }}</span></button>
+                    </div>
+                    <div class="column-controls">
+                        <button type="button" class="sort-button icon-button"
+                                data-sort-button="final"
+                                aria-label="Change task sort order"
+                                title="Change sort order">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-sort"></use></svg>
+                        </button>
+                        <button type="button" class="add-button" onclick="openAddTask(getCurrentFinalStatus(), {{ selected_project_id }})"
+                                aria-label="Add completed task" title="Add completed task">+</button>
+                    </div>
                 </div>
 
                 {% for task in tasks %}
-                    {% if task[3] == 'done' %}
-                        <div class="task-item" onclick='openTaskDetails({{ task[0] }}, {{ task[1] | tojson }}, {{ task[2] | tojson }}, {{ task[3] | tojson }}, {{ task[4] | tojson }}, {{ task[5] | tojson }}, {{ task[6] | tojson }}, {{ task[7] | tojson }})'>
-                            <span>{{ task[1] }}</span>
-                            <div class="task-actions">
-                                <button type="button" onclick='event.stopPropagation();openEditTask({{task[0]}},{{task[1]|tojson}},{{task[2]|tojson}},{{task[3]|tojson}})'>&#9998;</button>
-                                <button type="button" onclick="event.stopPropagation();openDeleteTask({{task[0]}})">&#128465;</button>
+                    {% if task[3] in ['done', 'archived', 'skipped'] %}
+                        <article class="task-item final-task" data-task-status="{{ task[3] }}" data-created="{{ task[4] }}"
+                                 {% if task[3] != selected_status %}hidden{% endif %}
+                                 onclick='openEditTask({{ task[0] }}, {{ task[1]|tojson }}, {{ task[2]|tojson }}, {{ task[3]|tojson }}, {{ task[4]|tojson }}, {{ task[5]|tojson }}, {{ task[6]|tojson }}, {{ task[7]|tojson }})'>
+                            <div class="task-content">
+                                <span class="task-title">{{ task[1] }}</span>
+                                <span class="task-age" data-created="{{ task[4] }}"></span>
                             </div>
-                        </div>
+                            <div class="task-actions">
+                                {% if task[3] == 'done' %}
+                                    <form action="{{ url_for('archivetask') }}" method="POST" class="task-action-form">
+                                        <input type="hidden" name="task_number" value="{{ task[0] }}">
+                                        <input type="hidden" name="return_status" value="{{ task[3] }}">
+                                        <input type="hidden" name="project_id" value="{{ selected_project_id }}">
+                                        <button type="submit" aria-label="Archive task" title="Archive task"
+                                                onclick="event.stopPropagation();">&veeeq;</button>
+                                    </form>
+                                {% elif task[3] == 'archived' %}
+                                    <form action="{{ url_for('restoretask') }}" method="POST" class="task-action-form">
+                                        <input type="hidden" name="task_number" value="{{ task[0] }}">
+                                        <input type="hidden" name="return_status" value="{{ task[3] }}">
+                                        <input type="hidden" name="project_id" value="{{ selected_project_id }}">
+                                        <button type="submit" aria-label="Restore task" title="Restore task"
+                                                onclick="event.stopPropagation();">&#8634;</button>
+                                    </form>
+                                {% endif %}
+                                <button type="button" class="icon-button delete-icon"
+                                        aria-label="Delete task" title="Delete task"
+                                        onclick="event.stopPropagation(); openDeleteTask({{ task[0] }})">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-trash"></use></svg>
+                                </button>
+                            </div>
+                        </article>
                     {% endif %}
                 {% endfor %}
-            </div>
+            </section>
         </div>
     </div>
 
+    <script>
+        // Show the age of each task using its creation timestamp.
+        function parseLocalTimestamp(value) {
+            if (!value) return null;
+            const parsed = new Date(value.replace(' ', 'T'));
+            return Number.isNaN(parsed.getTime()) ? null : parsed;
+        }
+
+        document.querySelectorAll('.task-age[data-created]').forEach(function (ageElement) {
+            const created = parseLocalTimestamp(ageElement.dataset.created);
+            if (!created) {
+                ageElement.textContent = 'Creation date unavailable';
+                return;
+            }
+
+            const today = new Date();
+            const createdDay = new Date(created.getFullYear(), created.getMonth(), created.getDate());
+            const todayDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const daysAgo = Math.max(0, Math.floor((todayDay - createdDay) / 86400000));
+
+            if (daysAgo === 0) ageElement.textContent = 'Created today';
+            else if (daysAgo === 1) ageElement.textContent = 'Created 1 day ago';
+            else ageElement.textContent = 'Created ' + daysAgo + ' days ago';
+        });
+
+        // Each column has its own sort direction. Newest-first is the initial order.
+        const sortDirections = { planned: 'desc', ongoing: 'desc', final: 'desc' };
+
+        function sortColumn(columnName) {
+            const column = document.querySelector('[data-sort-column="' + columnName + '"]');
+            if (!column) return;
+
+            const cards = Array.from(column.querySelectorAll('.task-item'));
+            cards.sort(function (a, b) {
+                const dateA = parseLocalTimestamp(a.dataset.created)?.getTime() || 0;
+                const dateB = parseLocalTimestamp(b.dataset.created)?.getTime() || 0;
+                return sortDirections[columnName] === 'desc' ? dateB - dateA : dateA - dateB;
+            });
+            cards.forEach(function (card) { column.appendChild(card); });
+        }
+
+        document.querySelectorAll('[data-sort-button]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const columnName = button.dataset.sortButton;
+                sortDirections[columnName] = sortDirections[columnName] === 'desc' ? 'asc' : 'desc';
+                sortColumn(columnName);
+                button.title = sortDirections[columnName] === 'desc' ? 'Newest tasks first' : 'Oldest tasks first';
+                button.setAttribute('aria-label', button.title);
+            });
+        });
+
+        // Sort all columns newest-first when the page first loads.
+        sortColumn('planned');
+        sortColumn('ongoing');
+        sortColumn('final');
+
+        // The final column tabs switch between Done, Archived and Skipped tasks.
+        function showFinalStatus(selectedStatus) {
+            document.querySelectorAll('[data-status-tab]').forEach(function (tab) {
+                const isSelected = tab.dataset.statusTab === selectedStatus;
+                tab.classList.toggle('active', isSelected);
+                tab.setAttribute('aria-selected', String(isSelected));
+            });
+
+            document.querySelectorAll('.final-task').forEach(function (card) {
+                card.hidden = card.dataset.taskStatus !== selectedStatus;
+            });
+        }
+
+        document.querySelectorAll('[data-status-tab]').forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                showFinalStatus(tab.dataset.statusTab);
+            });
+        });
+
+        // Restore the tab selected before the previous POST action.
+        showFinalStatus({{ selected_status|default('done')|tojson }});
+    </script>
 
 <!--- Adding Task Dialog Box and Script-->
     <dialog id="add-task-dialog">
@@ -177,9 +353,10 @@
 
             <label for="add-task-description" class="form-row">Description</label>
             <textarea id="add-task-description" name="description"></textarea>
-            
+
             <input type="hidden" id="add-task-status" name="status">
             <input type="hidden" id="add-task-project" name="project_id">
+            <input type="hidden" id="add-return-status" name="return_status" >
 
             <button type="submit">Submit</button>
             <button type="button"
@@ -188,13 +365,13 @@
             </button>
         </form>
     </dialog>
-    
+
     <script>
         function openAddTask(status, project) {
-            console.log("Status received:", status);
             document.getElementById('add-task-form').reset();
             document.getElementById('add-task-status').value = status;
-            document.getElementById('add-task-project').value = project;     
+            document.getElementById('add-task-project').value = project;
+            document.getElementById('add-return-status').value = status;
             document.getElementById('add-task-dialog').showModal();
         }
     </script>
@@ -209,6 +386,8 @@
         </div>
         <form id="edit-task-form" action="{{url_for('edittask')}}" method="POST">
             <input type="hidden" id="edit-task-number" name="task_number">
+            <input type="hidden" id="edit-return-status" name="return_status" value="{{ selected_status }}">
+            <input type="hidden" name="project_id" value="{{ selected_project_id }}">
 
             <label for="edit-task-title" class="form-row">Title</label>
             <input type="text" id="edit-task-title" name="title" required>
@@ -223,6 +402,7 @@
                 <option value="ongoing">Ongoing</option>
                 <option value="skipped">Skipped</option>
                 <option value="done">Done</option>
+                <option value="archived">Archived</option>
             </select>
 
             <button type="submit">Submit</button>
@@ -232,64 +412,21 @@
             </button>
         </form>
     </dialog>
-    
-    <script>
-        function openEditTask(tasknumber, tasktitle, taskdescription, taskstatus) {
-            console.log("Edit button clicked", tasknumber );
-            document.getElementById('edit-task-form').reset();
-            document.getElementById('edit-task-number').value = tasknumber; 
-            document.getElementById('edit-task-title').value = tasktitle; 
-            document.getElementById('edit-task-description').value = taskdescription;
-            document.getElementById('edit-task-status').value = taskstatus;  
-            document.getElementById('edit-task-dialog').showModal();
-        }
-    </script>
 
-<!--- Show Task Dialog Box and Script-->
-    <dialog id="task-details-dialog">
-    
-        <div class="details-header">
-            <div class="dialog-header">
-                <h2 id="details-title">Show Task</h2>
-                <button type="button" class="dialog-close"
-                        onclick="document.getElementById('task-details-dialog').close()"
-                        aria-label="Close">&times;</button>
-            </div>
-            <div class="task-actions">
-                <button type="button" onclick="editTaskFromDetails()" class = "edit-button" title="Edit">&#9998;</button>
-                <button type="button" onclick="deleteTaskFromDetails()" class = "delete-button" title="Delete">&#128465;</button>
-            </div>
-        </div>
-    
-        <p><strong>Status:</strong> <span id="details-status"></span></p>
-    
-        <p><strong>Description</strong></p>
-        <div id="details-description"></div>
-    
-        <p><strong>Created on:</strong> <span id="details-created-date"></span></p>
-    
-    </dialog>
-    
     <script>
-        function openTaskDetails(taskId, title, description, status, createdDate) {
-            document.getElementById('details-title').textContent = title;
-            document.getElementById('details-description').textContent = description;
-            document.getElementById('details-status').textContent = status;
-            document.getElementById('details-created-date').textContent = createdDate;
-        
-            document.querySelector('#task-details-dialog .edit-button').onclick =
-                function() {
-                    document.getElementById('task-details-dialog').close();
-                    openEditTask(taskId, title, description, status);
-                };
-            
-            document.querySelector('#task-details-dialog .delete-button').onclick =
-                function() {
-                    document.getElementById('task-details-dialog').close();
-                    openDeleteTask(taskId);
-                };
-            
-            document.getElementById('task-details-dialog').showModal();
+        function getCurrentFinalStatus() {
+            const activeTab = document.querySelector('.status-tab.active');
+            return activeTab ? activeTab.dataset.statusTab : 'done';
+        }
+
+        function openEditTask(tasknumber, tasktitle, taskdescription, taskstatus) {
+            document.getElementById('edit-task-form').reset();
+            document.getElementById('edit-task-number').value = tasknumber;
+            document.getElementById('edit-return-status').value = getCurrentFinalStatus();
+            document.getElementById('edit-task-title').value = tasktitle;
+            document.getElementById('edit-task-description').value = taskdescription;
+            document.getElementById('edit-task-status').value = taskstatus;
+            document.getElementById('edit-task-dialog').showModal();
         }
     </script>
 
@@ -303,6 +440,8 @@
         </div>
         <form id="delete-task-form" action="{{url_for('deletetask')}}" method="POST">
             <input type="hidden" id="delete-task-number" name="task_number">
+            <input type="hidden" id="delete-return-status" name="return_status" value="{{ selected_status }}">
+            <input type="hidden" name="project_id" value="{{ selected_project_id }}">
 
             <p>Are you sure you want to delete this task?? This action cant be undone.</p>
 
@@ -313,11 +452,11 @@
             </button>
         </form>
     </dialog>
-    
+
     <script>
         function openDeleteTask(tasknumber) {
-            console.log("Delete button clicked", tasknumber);
-            document.getElementById('delete-task-number').value = tasknumber;    
+            document.getElementById('delete-task-number').value = tasknumber;
+            document.getElementById('delete-return-status').value = getCurrentFinalStatus();
             document.getElementById('delete-task-dialog').showModal();
         }
     </script>

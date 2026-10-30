@@ -24,17 +24,6 @@ h1 {
 }
 
 /* Compact sticky Tasks title, directly below the welcome/logout row */
-body:has(.tasks-container) > h1 {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    margin: 0 0 12px;
-    padding: 6px 0;
-    background: #f8f8f6;
-    font-size: 24px;
-    line-height: 1.25;
-}
-
 h2 {
     margin: 0;
     font-size: 20px;
@@ -185,24 +174,6 @@ button:focus-visible {
     clip-path: inset(0 round 14px);
 }
 
-.tasks-container::-webkit-scrollbar {
-    height: 0;
-}
-
-.tasks-container:hover {
-    scrollbar-width: thin;
-    scrollbar-color: #999 transparent;
-}
-
-.tasks-container:hover::-webkit-scrollbar {
-    height: 6px;
-}
-
-.tasks-container:hover::-webkit-scrollbar-thumb {
-    background: #999;
-    border-radius: 10px;
-}
-
 .tasks-container > .task-column::-webkit-scrollbar {
     display: none;
     width: 0;
@@ -271,22 +242,13 @@ button:focus-visible {
     transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-
 .task-item:hover {
     border-color: #c9c9c1;
     box-shadow: 0 3px 10px rgb(0 0 0 / 4%);
     transform: translateY(-1px);
 }
 
-.task-item > span {
-    flex: 1;
-    min-width: 0;
-    overflow-wrap: anywhere;
-    font-size: 14px;
-}
-
 /* Task and user action icons */
-.task-actions,
 .user-actions {
     display: flex;
     flex: 0 0 auto;
@@ -294,7 +256,6 @@ button:focus-visible {
     gap: 4px;
 }
 
-.task-actions button,
 .user-actions button {
     width: 32px;
     min-width: 32px;
@@ -309,7 +270,6 @@ button:focus-visible {
     line-height: 1;
 }
 
-.task-actions button:hover,
 .user-actions button:hover {
     border-color: transparent;
     background: #f0f0ed;
@@ -338,10 +298,6 @@ dialog::backdrop {
 
 dialog form {
     margin: 0;
-}
-
-dialog br {
-    display: none;
 }
 
 .dialog-header {
@@ -502,62 +458,6 @@ dialog form button.delete-button:hover {
 }
 
 /* Task details dialog */
-#task-details-dialog .details-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    width: 100%;
-    margin-bottom: 22px;
-}
-
-#task-details-dialog .details-header > .dialog-header {
-    display: contents;
-}
-
-#task-details-dialog #details-title {
-    order: 1;
-    flex: 1 1 auto;
-    min-width: 0;
-    margin: 0;
-}
-
-#task-details-dialog .details-header > .task-actions {
-    order: 2;
-    margin-left: 0;
-}
-
-#task-details-dialog .details-header .dialog-close {
-    order: 3;
-    margin-left: 0;
-}
-
-#task-details-dialog p {
-    margin: 16px 0 8px;
-    color: #555;
-    font-size: 14px;
-}
-
-#task-details-dialog p strong {
-    color: #292929;
-    font-weight: 600;
-}
-
-#details-description {
-    min-height: 48px;
-    padding: 12px 13px;
-    border: 1px solid #ededE8;
-    border-radius: 8px;
-    background: #f7f7f4;
-    color: #444;
-    font-size: 14px;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-}
-
-#details-created-date {
-    color: #777;
-}
-
 /* Delete confirmation text */
 #delete-task-dialog p {
     margin: 0 0 20px;
@@ -566,28 +466,12 @@ dialog form button.delete-button:hover {
     line-height: 1.7;
 }
 
-
 /* Project switcher */
 .project-switcher {
     position: relative;
     display: inline-block;
     margin: 0;
     z-index: 20;
-}
-
-.project-switcher-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 5px 7px;
-    border: 1px solid transparent;
-    border-radius: 7px;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: 600;
 }
 
 .project-switcher-button:hover,
@@ -734,15 +618,289 @@ dialog form button.delete-button:hover {
         padding: 20px;
     }
 
-    #task-details-dialog .details-header {
-        gap: 8px;
-    }
-
-    #task-details-dialog .details-header > .task-actions {
-        gap: 2px;
-    }
-
     .task-item {
         padding: 12px;
+    }
+}
+
+/* =========================================================
+   Updated task board controls and task-age layout
+   ========================================================= */
+
+/* Larger selected project name in the top-left switcher */
+.project-switcher-button {
+    gap: 9px;
+    padding: 5px 8px;
+    font-size: 22px;
+    font-weight: 650;
+    letter-spacing: -0.4px;
+}
+
+.project-switcher-button > svg:first-child {
+    width: 21px;
+    height: 21px;
+}
+
+.project-switcher-button .chevron {
+    width: 14px;
+    height: 14px;
+}
+
+/* Column heading, count badge and controls */
+.column-heading-group,
+.column-controls {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.column-heading-group {
+    gap: 10px;
+}
+
+.column-heading-group h2 {
+    font-size: 16px;
+}
+
+.count-badge,
+.tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 25px;
+    height: 25px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: #e6e6e1;
+    color: #555;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.planned-count {
+    background: #e7edf8;
+    color: #405d91;
+}
+
+.ongoing-count {
+    background: #f7edda;
+    color: #93651d;
+}
+
+.column-controls {
+    flex: 0 0 auto;
+    gap: 6px;
+}
+
+.sort-button {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+    border-color: #d8d8d2;
+    border-radius: 8px;
+    background: #fafaf8;
+    color: #555;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.sort-button:hover {
+    background: #e7e7e1;
+}
+
+/* The task title and age are stacked, while actions remain on the right. */
+.task-content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    gap: 3px;
+}
+
+.task-item .task-title {
+    display: block;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: #292929;
+    font-size: 14px;
+}
+
+.task-age {
+    display: block;
+    color: #85857e;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.task-action-form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.task-actions button {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #292929;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.task-actions button:hover {
+    border-color: transparent;
+    background: #f0f0ed;
+    color: #222;
+}
+
+/* Done / Archived / Skipped tabs */
+.final-column-header {
+    gap: 8px;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.status-tabs {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    min-width: 0;
+    gap: 2px;
+}
+
+.status-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    min-height: 44px;
+    padding: 5px 7px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: #666;
+    font-size: 16px;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.status-tab .tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 25px;
+    width: 25px;
+    min-width: 25px;
+    height: 25px;
+    padding: 0;
+    line-height: 1;
+    box-sizing: border-box;
+    vertical-align: middle;
+}
+
+.status-tab:hover {
+    border-color: transparent;
+    border-bottom-color: #c9c9c1;
+    background: transparent;
+    color: #292929;
+}
+
+.status-tab.active {
+    border-bottom-color: #55a867;
+    color: #152c17;
+    font-weight: 600;
+}
+
+.status-tab.active .tab-count {
+    background: #e7f8e7;
+    color: #40914b;
+}
+
+.final-task[hidden] {
+    display: none !important;
+}
+
+/* Consistent SVG action icons */
+.icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 7px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: #777;
+    cursor: pointer;
+}
+
+.icon-button svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Delete gets a subtle red hover */
+.delete-icon:hover {
+    background: #fff0ef;
+    color: #d64545;
+}
+
+.icon-button:hover {
+    background: #f0f0ed;
+    color: #222;
+}
+
+@media (max-width: 800px) {
+    .project-switcher-button {
+        font-size: 23px;
+    }
+
+    .final-column-header {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .status-tab {
+        gap: 4px;
+        padding-left: 5px;
+        padding-right: 5px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .project-switcher-button {
+        font-size: 21px;
+    }
+
+    .project-switcher-button > svg:first-child {
+        width: 19px;
+        height: 19px;
+    }
+
+    .status-tab {
+        font-size: 11px;
+    }
+
+    .tab-count {
+        min-width: 21px;
+        height: 21px;
+        padding: 0 5px;
+        font-size: 11px;
     }
 }

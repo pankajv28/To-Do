@@ -1,4 +1,4 @@
-from todo import add_task, edit_task, delete_task, load_tasks, get_user_projects, archive_task
+from todo import add_task, edit_task, delete_task, load_tasks, get_user_projects, archive_task, restore_task
 from manage_users import create_user, edit_user, login_user, show_users, delete_user
 from flask import Flask, render_template, session, request, redirect, url_for, flash, abort
 import sqlite3
@@ -103,7 +103,7 @@ def addtask():
     try:
         if session.get('status', False):
             add_task(request.form['title'],request.form['description'],request.form['status'],request.form['project_id'],session['user_id'])
-            return (redirect(url_for('home')))
+            return (redirect(url_for('home', status_view = request.form.get('return_status', 'done'), project_id = request.form.get('project_id', type=int))))
         else :
             session.clear()
             return (redirect(url_for('login')))
@@ -115,7 +115,7 @@ def addtask():
 def edittask():
     if session.get('status', False):
         edit_task(request.form['task_number'],request.form['title'],request.form['description'],request.form['status'])
-        return (redirect(url_for('home')))
+        return (redirect(url_for('home', status_view = request.form.get('return_status', 'done'), project_id = request.form.get('project_id', type=int))))
     else :
         session.clear()
         return (redirect(url_for('login')))
@@ -125,7 +125,7 @@ def edittask():
 def deletetask():
     if session.get('status', False):
         delete_task(request.form['task_number'])
-        return (redirect(url_for('home')))
+        return (redirect(url_for('home', status_view = request.form.get('return_status', 'done'), project_id = request.form.get('project_id', type=int))))
     else :
         session.clear()
         return (redirect(url_for('login')))
@@ -134,8 +134,18 @@ def deletetask():
 @app.route('/archive', methods = ['POST'])
 def archivetask():
     if session.get('status', False):
-        archive_task(request.form['task_number'])
-        return (redirect(url_for('home')))
+        archive_task(request.form.get('task_number'))
+        return (redirect(url_for('home', status_view = request.form.get('return_status', 'done'), project_id = request.form.get('project_id', type=int))))
+    else :
+        session.clear()
+        return (redirect(url_for('login')))
+
+#restore_task
+@app.route('/restore', methods = ['POST'])
+def restoretask():
+    if session.get('status', False):
+        restore_task(request.form.get('task_number'))
+        return (redirect(url_for('home', status_view = request.form.get('return_status', 'done'), project_id = request.form.get('project_id', type=int))))
     else :
         session.clear()
         return (redirect(url_for('login')))
@@ -148,6 +158,7 @@ def home():
         projects = get_user_projects(user_id)
         tasks = []
         selected_project_id = None
+        selected_status = request.args.get('status_view', 'done')
         if projects :
             allowed_project_ids = [row[0] for row in projects]
             project_id = request.args.get("project_id",type= int)
@@ -156,7 +167,7 @@ def home():
             else:
                 selected_project_id = allowed_project_ids[0]
             tasks = load_tasks(selected_project_id)
-        return render_template('index.html', tasks = tasks, username = session.get('username'), projects = projects, selected_project_id = selected_project_id, role = session['role'])
+        return render_template('index.html', tasks = tasks, username = session.get('username'), projects = projects, selected_project_id = selected_project_id, role = session['role'], selected_status=selected_status)
     else :
         session.clear()
         return (redirect(url_for('login')))

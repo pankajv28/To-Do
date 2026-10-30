@@ -54,6 +54,19 @@ def archive_task(task_number):
                             (task_number,))
         connection.commit()
     finally:
+        connection.close()
+
+def restore_task(task_number):
+    connection = sqlite3.connect('todo.db')
+    connection.execute('PRAGMA foreign_keys = on')
+    cur = connection.cursor()
+    try : 
+        cur.execute("""UPDATE tasks
+                        SET status = "done"
+                        where id = ? """,
+                            (task_number,))
+        connection.commit()
+    finally:
         connection.close() 
 
 def load_tasks(project_id):
