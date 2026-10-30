@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Tasks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 
@@ -199,14 +200,18 @@
             <!-- Done / Archived / Skipped column -->
             <section class="task-column" data-sort-column="final">
                 <div class="column-header final-column-header">
-                    <div class="status-tabs" role="tablist" aria-label="Task status">
-                        <button type="button" class="status-tab {% if selected_status == 'done' %}active{% endif %}" role="tab" aria-selected="{{ 'true' if selected_status == 'done' else 'false' }}"
-                                data-status-tab="done">Done <span class="tab-count done-count">{{ tasks|selectattr(3, 'equalto', 'done')|list|length }}</span></button>
-                        <button type="button" class="status-tab {% if selected_status == 'archived' %}active{% endif %}" role="tab" aria-selected="{{ 'true' if selected_status == 'archived' else 'false' }}"
-                                data-status-tab="archived">Archived <span class="tab-count archived-count">{{ tasks|selectattr(3, 'equalto', 'archived')|list|length }}</span></button>
-                        <button type="button" class="status-tab {% if selected_status == 'skipped' %}active{% endif %}" role="tab" aria-selected="{{ 'true' if selected_status == 'skipped' else 'false' }}"
-                                data-status-tab="skipped">Skipped <span class="tab-count skipped-count">{{ tasks|selectattr(3, 'equalto', 'skipped')|list|length }}</span></button>
-                    </div>
+                    <select class="status-select" id="final-status-select"
+                            aria-label="Select task status">
+                        <option value="done">
+                            Done ({{ tasks|selectattr(3, 'equalto', 'done')|list|length }})
+                        </option>
+                        <option value="archived">
+                            Archived ({{ tasks|selectattr(3, 'equalto', 'archived')|list|length }})
+                        </option>
+                        <option value="skipped">
+                            Skipped ({{ tasks|selectattr(3, 'equalto', 'skipped')|list|length }})
+                        </option>
+                    </select>
                     <div class="column-controls">
                         <button type="button" class="sort-button icon-button"
                                 data-sort-button="final"
@@ -236,14 +241,6 @@
                                         <input type="hidden" name="project_id" value="{{ selected_project_id }}">
                                         <button type="submit" aria-label="Archive task" title="Archive task"
                                                 onclick="event.stopPropagation();">&veeeq;</button>
-                                    </form>
-                                {% elif task[3] == 'archived' %}
-                                    <form action="{{ url_for('restoretask') }}" method="POST" class="task-action-form">
-                                        <input type="hidden" name="task_number" value="{{ task[0] }}">
-                                        <input type="hidden" name="return_status" value="{{ task[3] }}">
-                                        <input type="hidden" name="project_id" value="{{ selected_project_id }}">
-                                        <button type="submit" aria-label="Restore task" title="Restore task"
-                                                onclick="event.stopPropagation();">&#8634;</button>
                                     </form>
                                 {% endif %}
                                 <button type="button" class="icon-button delete-icon"
@@ -322,7 +319,13 @@
                 tab.classList.toggle('active', isSelected);
                 tab.setAttribute('aria-selected', String(isSelected));
             });
-
+        
+            // Keep the mobile dropdown synchronized
+            const statusSelect = document.getElementById('final-status-select');
+            if (statusSelect) {
+                statusSelect.value = selectedStatus;
+            }
+        
             document.querySelectorAll('.final-task').forEach(function (card) {
                 card.hidden = card.dataset.taskStatus !== selectedStatus;
             });
@@ -334,8 +337,13 @@
             });
         });
 
+        document.getElementById('final-status-select')
+        .addEventListener('change', function () {
+            showFinalStatus(this.value);
+        });
+
         // Restore the tab selected before the previous POST action.
-        showFinalStatus({{ selected_status|default('done')|tojson }});
+        showFinalStatus(document.getElementById('final-status-select').value = {{ selected_status|default('done')|tojson }});
     </script>
 
 <!--- Adding Task Dialog Box and Script-->
@@ -371,7 +379,7 @@
             document.getElementById('add-task-form').reset();
             document.getElementById('add-task-status').value = status;
             document.getElementById('add-task-project').value = project;
-            document.getElementById('add-return-status').value = status;
+            document.getElementById('add-return-status').value = getCurrentFinalStatus();
             document.getElementById('add-task-dialog').showModal();
         }
     </script>
@@ -415,8 +423,7 @@
 
     <script>
         function getCurrentFinalStatus() {
-            const activeTab = document.querySelector('.status-tab.active');
-            return activeTab ? activeTab.dataset.statusTab : 'done';
+            return document.getElementById('final-status-select').value;
         }
 
         function openEditTask(tasknumber, tasktitle, taskdescription, taskstatus) {

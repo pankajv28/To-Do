@@ -91,41 +91,34 @@
         }
 
         .flash-messages {
-            margin-top: 22px;
+            margin: 16px 0;
         }
-
+        
         .flash-message {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            padding: 14px 16px;
-            border: 1px solid transparent;
-            border-radius: 9px;
-            font-size: 14px;
-        }
-
-        .flash-success {
-            color: #166534;
-            background: #f0fdf4;
-            border-color: #bbf7d0;
-        }
-
-        .flash-error {
-            color: #b91c1c;
-            background: #fef2f2;
-            border-color: #fecaca;
-        }
-
-        .flash-close {
-            flex: 0 0 auto;
+            margin: 16px 0;
             padding: 0;
-            border: 0;
+            border: none;
             background: transparent;
-            color: inherit;
-            font-size: 20px;
-            line-height: 1;
-            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.3s ease;
+        }
+        
+        .flash-success {
+            background: transparent;
+            color: #166534;
+        }
+        
+        .flash-error {
+            background: transparent;
+            color: #b91c1c;
+        }
+        
+        .flash-close {
+            display: none;
         }
 
         @media (max-width: 480px) {
@@ -198,10 +191,15 @@
     </div>
 
     <script>
-        document.querySelectorAll('.flash-close').forEach(button => {
-            button.addEventListener('click', () => {
-                button.closest('.flash-message').remove();
-            });
+        document.querySelectorAll('.flash-message').forEach(function (message) {
+            setTimeout(function () {
+                message.style.opacity = '0';
+
+                setTimeout(function () {
+                    message.remove();
+                }, 300);
+
+            }, 5000);
         });
     </script>
 

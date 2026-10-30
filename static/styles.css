@@ -91,39 +91,25 @@ button:focus-visible {
     justify-content: space-between;
     gap: 16px;
     margin: 16px 0;
-    padding: 14px 18px;
-    border: 1px solid transparent;
-    border-radius: 10px;
+    padding: 0;
+    border: none;
+    background: transparent;
     font-size: 14px;
+    transition: opacity 0.3s ease;
 }
 
 .flash-success {
-    border-color: #bbf7d0;
-    background: #f0fdf4;
+    background: transparent;
     color: #166534;
 }
 
 .flash-error {
-    border-color: #fecaca;
-    background: #fef2f2;
+    background: transparent;
     color: #b91c1c;
 }
 
 .flash-close {
-    flex: 0 0 auto;
-    min-height: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    font-size: 20px;
-    line-height: 1;
-}
-
-.flash-close:hover {
-    border-color: transparent;
-    background: transparent;
-    opacity: 0.7;
+    display: none;
 }
 
 /* Task board: each column has its own rounded frame and scroll area */
@@ -631,7 +617,7 @@ dialog form button.delete-button:hover {
 .project-switcher-button {
     gap: 9px;
     padding: 5px 8px;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 650;
     letter-spacing: -0.4px;
 }
@@ -735,8 +721,18 @@ dialog form button.delete-button:hover {
     line-height: 1.35;
 }
 
+.task-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
 .task-action-form {
-    display: inline-flex;
+    display: flex;
+    flex : 0 0 auto;
     margin: 0;
 }
 
@@ -752,6 +748,7 @@ dialog form button.delete-button:hover {
     color: #292929;
     font-size: 18px;
     line-height: 1;
+    flex : 0 0 32px;
 }
 
 .task-actions button:hover {
@@ -829,6 +826,7 @@ dialog form button.delete-button:hover {
     display: none !important;
 }
 
+
 /* Consistent SVG action icons */
 .icon-button {
     display: inline-flex;
@@ -864,6 +862,74 @@ dialog form button.delete-button:hover {
     background: #f0f0ed;
     color: #222;
 }
+
+/* Final column: dropdown on all screen sizes */
+
+.final-column-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+/* Hide Done / Archived / Skipped tabs everywhere */
+.final-column-header .status-tabs {
+    display: none;
+}
+
+/* Styled status dropdown */
+.final-column-header .status-select {
+    display: inline-flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 190px;
+    height: 38px;
+    margin: 0;
+    padding: 0 34px 0 12px;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    border: 1px solid #deded9;
+    border-radius: 8px;
+    background-color: #fafaf8;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 11px center;
+    background-size: 14px;
+
+    color: #292929;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.final-column-header .status-select:hover {
+    border-color: #c8c8c1;
+    background-color: #f0f0ed;
+}
+
+.final-column-header .status-select:focus {
+    outline: none;
+    border-color: #929287;
+    box-shadow: 0 0 0 3px rgb(120 120 105 / 10%);
+}
+
+.final-column-header .status-select:focus-visible {
+    outline: 2px solid #858578;
+    outline-offset: 2px;
+}
+
+/* Keep Sort and Add together on the right */
+.final-column-header .column-controls {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 6px;
+}
+
 
 @media (max-width: 800px) {
     .project-switcher-button {

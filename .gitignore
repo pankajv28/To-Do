@@ -1,8 +1,17 @@
-# Private SQLite database
+# SQLite databases
 todo.db
-
-# SQLite temporary and journal files
 todo.db-*
-
-__pycache__/
 todo_backup.db
+
+# Python virtual environments
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example

@@ -233,10 +233,15 @@
     </script>
 
     <script>
-        document.querySelectorAll('.flash-close').forEach(button => {
-            button.addEventListener('click', () => {
-                button.closest('.flash-message').remove();
-            });
+        document.querySelectorAll('.flash-message').forEach(function (message) {
+            setTimeout(function () {
+                message.style.opacity = '0';
+            
+                setTimeout(function () {
+                    message.remove();
+                }, 300);
+            
+            }, 5000);
         });
     </script>
 

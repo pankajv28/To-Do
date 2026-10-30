@@ -9,8 +9,10 @@ app = Flask(__name__)
 
 app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
 
-#app.secret_key = os.environ["FLASK_SECRET_KEY"]
-app.secret_key = '6f0e57a4138b5269a46e63d716b84156145d7a2433187a98f6e22d0ca49a1783'
+app.secret_key = os.environ["FLASK_SECRET_KEY"]
+
+if not app.secret_key:
+    raise RuntimeError("FLASK_SECRET_KEY is not set")
 
 #login route
 @app.route('/login', methods = ['POST','GET'])
@@ -159,6 +161,8 @@ def home():
         tasks = []
         selected_project_id = None
         selected_status = request.args.get('status_view', 'done')
+        if selected_status not in ('done','skipped','archived'):
+            selected_status = 'done'
         if projects :
             allowed_project_ids = [row[0] for row in projects]
             project_id = request.args.get("project_id",type= int)

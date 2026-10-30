@@ -42,7 +42,7 @@ def login_user(username,password):
                            (username,))
         result = cur.fetchone()
         if result is None:
-            return False, False, False
+            return False, False, False, False
 
         password_hash, name, user_id, role = result
         return check_password_hash(password_hash,password), name, user_id, role
